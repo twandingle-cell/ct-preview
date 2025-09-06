@@ -1,1 +1,288 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChainLogic AI — Outbound Control Tower (Preview)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { background: #f1f5f9; }
+      .card { border: 1px solid #e5e7eb; background: white; border-radius: 1rem; box-shadow: 0 1px 2px rgba(16,24,40,0.06); }
+      .card-header { border-bottom: 1px solid #e5e7eb; padding: 0.75rem 1rem; }
+      .card-title { font-weight: 600; font-size: 1rem; }
+      .card-content { padding: 0.75rem 1rem; }
+      .pill { display:inline-flex; align-items:center; gap:0.25rem; border-radius:9999px; border:1px solid; padding: 2px 8px; font-size: 12px; }
+    </style>
+    <!-- React + Recharts + Babel (CDN) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useMemo, useState } = React;
+      const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } = Recharts;
+
+      const cutoffSummary = [
+        { cutoff: "12:00", shipments: 40, red: 2, amber: 7, green: 31 },
+        { cutoff: "15:00", shipments: 53, red: 5, amber: 8, green: 40 },
+        { cutoff: "18:00", shipments: 33, red: 1, amber: 4, green: 28 },
+      ];
+      const waves = [
+        { id: "W42", mode: "Parcel", picked: 84, packed: 66, backlog: 1080 },
+        { id: "W43", mode: "LTL", picked: 60, packed: 41, backlog: 5120 },
+        { id: "W44", mode: "Retail", picked: 38, packed: 22, backlog: 7420 },
+      ];
+      const doorUtil = [
+        { door: "D1", util: 71 },
+        { door: "D2", util: 85 },
+        { door: "D3", util: 66 },
+        { door: "D4", util: 78 },
+        { door: "D5", util: 88 },
+        { door: "D6", util: 92 },
+      ];
+      const latencySeries = [
+        { hh: "08:00", latency: 18 },
+        { hh: "09:00", latency: 16 },
+        { hh: "10:00", latency: 14 },
+        { hh: "11:00", latency: 13 },
+        { hh: "12:00", latency: 12 },
+        { hh: "13:00", latency: 11 },
+        { hh: "14:00", latency: 11 },
+      ];
+      const alerts = [
+        { id: 1, text: "Routing guide fail — Shipment 1247 (reprint UCC-128)", severity: "red", action: "Open label queue" },
+        { id: 2, text: "Ship confirm blocked — LPN 33921 missing load scan", severity: "amber", action: "View load 1189" },
+        { id: 3, text: "Door 6 over capacity — move Load 1189 to Door 2", severity: "amber", action: "Reassign door" },
+        { id: 4, text: "Release Wave 43 — Aisle B first; move 2 to Pack 3", severity: "info", action: "Apply plan" },
+      ];
+
+      function KPI({ label, value }) {
+        return (
+          <div className="card">
+            <div className="card-header flex items-center justify-between">
+              <div className="text-sm text-slate-600">{label}</div>
+            </div>
+            <div className="card-content">
+              <div className="text-3xl font-semibold">{value}</div>
+            </div>
+          </div>
+        );
+      }
+
+      function StackedCutoffBar() {
+        const data = cutoffSummary.map(r => ({ cutoff: r.cutoff, Red: r.red, Amber: r.amber, Green: r.green }));
+        return (
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="cutoff" stroke="#0A2342" tick={{ fill: '#0A2342' }} />
+              <YAxis stroke="#0A2342" tick={{ fill: '#0A2342' }} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="Red" stackId="a" fill="#DC2626" />
+              <Bar dataKey="Amber" stackId="a" fill="#F59E0B" />
+              <Bar dataKey="Green" stackId="a" fill="#3EB489" />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      }
+
+      function DoorUtilChart() {
+        return (
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={doorUtil}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="door" stroke="#0A2342" tick={{ fill: '#0A2342' }} />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="util" fill="#0A2342" />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      }
+
+      function LatencyLine() {
+        return (
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={latencySeries}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="hh" stroke="#0A2342" tick={{ fill: '#0A2342' }} />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="latency" strokeWidth={2} dot={false} stroke="#0A2342" />
+            </LineChart>
+          </ResponsiveContainer>
+        );
+      }
+
+      function WaveTable() {
+        return (
+          <div className="card">
+            <div className="card-content overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="text-left text-slate-500">
+                  <tr className="border-b">
+                    <th className="px-3 py-2 font-medium">Wave</th>
+                    <th className="px-3 py-2 font-medium">Mode</th>
+                    <th className="px-3 py-2 font-medium">% Picked</th>
+                    <th className="px-3 py-2 font-medium">% Packed</th>
+                    <th className="px-3 py-2 font-medium">Backlog lines</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {waves.map(w => (
+                    <tr key={w.id} className="border-b">
+                      <td className="px-3 py-2 font-medium">{w.id}</td>
+                      <td className="px-3 py-2">{w.mode}</td>
+                      <td className="px-3 py-2">{w.picked}%</td>
+                      <td className="px-3 py-2">{w.packed}%</td>
+                      <td className="px-3 py-2">{w.backlog.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
+
+      function AlertsList() {
+        return (
+          <div className="space-y-2">
+            {alerts.map(a => (
+              <div key={a.id} className="flex items-center justify-between rounded-xl border bg-white p-3 shadow-sm">
+                <div className="text-sm text-slate-800">{a.text}</div>
+                <button className="inline-flex items-center justify-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs"> {a.action} </button>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      function App() {
+        const kpis = useMemo(() => [
+          { label: "On-time shipments", value: "93%" },
+          { label: "Loads today", value: "126" },
+          { label: "Close → Confirm latency", value: "11 min" },
+        ], []);
+
+        return (
+          <div className="min-h-screen">
+            <div className="sticky top-0 z-20 border-b bg-white/80 backdrop-blur">
+              <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-1 rounded" style={{ background:'#3EB489' }}></div>
+                  <div className="text-lg font-semibold tracking-tight" style={{ color:'#0A2342' }}>ChainLogic AI</div>
+                  <span className="ml-2 inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700">Outbound Control Tower</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <select className="w-40 rounded-md border bg-white px-2 py-2"><option>All carriers</option><option>UPS</option><option>FedEx</option><option>LTL</option></select>
+                  <select className="w-40 rounded-md border bg-white px-2 py-2"><option>Next 3 hours</option><option>Now</option><option>Today</option></select>
+                  <button className="inline-flex items-center justify-center gap-1 rounded-full border bg-white px-3 py-2">Export</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 md:grid-cols-3">
+              <div className="md:col-span-3 grid grid-cols-1 gap-4 md:grid-cols-3">
+                {kpis.map(k => (
+                  <div key={k.label}><KPI label={k.label} value={k.value} /></div>
+                ))}
+              </div>
+
+              <div className="space-y-4 md:col-span-2">
+                <div className="card">
+                  <div className="card-header"><div className="card-title">Shipments by cutoff (risk)</div></div>
+                  <div className="card-content">
+                    <StackedCutoffBar />
+                    <div className="mt-3 grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-3">
+                      {cutoffSummary.map(r => (
+                        <div key={r.cutoff} className="rounded-xl border bg-white p-3">
+                          <div className="flex items-center justify-between"><div className="font-medium">{r.cutoff}</div><div className="text-xs">{r.shipments} shipments</div></div>
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className="pill" style="border-color:#fecaca;background:#fee2e2;color:#b91c1c">RED</span><span>{r.red}</span>
+                            <span className="pill" style="border-color:#fde68a;background:#fef3c7;color:#92400e">AMBER</span><span>{r.amber}</span>
+                            <span className="pill" style="border-color:#a7f3d0;background:#d1fae5;color:#065f46">GREEN</span><span>{r.green}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card">
+                  <div className="card-header"><div className="card-title">Wave status & pick progress</div></div>
+                  <div className="card-content"><WaveTable /></div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="card">
+                  <div className="card-header"><div className="card-title">Door utilization</div></div>
+                  <div className="card-content"><DoorUtilChart /></div>
+                </div>
+                <div className="card">
+                  <div className="card-header"><div className="card-title">Close → Confirm latency</div></div>
+                  <div className="card-content"><LatencyLine /></div>
+                </div>
+                <div className="card">
+                  <div className="card-header flex items-center justify-between">
+                    <div className="card-title">Live alerts</div>
+                    <button className="inline-flex items-center justify-center gap-1 rounded-full px-3 py-1 text-xs border">View all</button>
+                  </div>
+                  <div className="card-content"><AlertsList /></div>
+                </div>
+              </div>
+
+              <div className="md:col-span-3 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <div className="card">
+                    <div className="card-header"><div className="card-title">Today’s plan</div></div>
+                    <div className="card-content space-y-3">
+                      <div className="rounded-xl border bg-white p-3 text-sm text-slate-800">
+                        <div className="mb-1 font-medium">Release order</div>
+                        <ol className="ml-4 list-decimal space-y-1">
+                          <li>Release Wave 43 (Aisles B→D) now</li>
+                          <li>Move 2 associates to Pack 3 until 14:30</li>
+                          <li>Reassign Load 1189 from Door 6 to Door 2</li>
+                        </ol>
+                      </div>
+                      <div className="rounded-xl border bg-white p-3 text-sm text-slate-800">
+                        <div className="mb-1 font-medium">Why</div>
+                        <ul className="ml-4 list-disc space-y-1">
+                          <li>UPS 15:00 has 53 shipments with 5 red, 8 amber</li>
+                          <li>Wave 43 at 61% picked; Pack 3 label queue 29</li>
+                          <li>Door 6 jam 35 min; Door 2 free at 12:15</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="card">
+                  <div className="card-header"><div className="card-title">Copilot (mock)</div></div>
+                  <div className="card-content text-sm text-slate-800">
+                    <div className="mb-2">Plan: Release Wave 43 aisles B→D. Move 2 to Pack 3. Keep Door 2 for parcel; move Load 1189 from Door 6.</div>
+                    <div className="rounded bg-slate-50 p-2">Ask about cutoffs, waves, doors, labels…</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <footer className="border-t bg-white">
+              <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 text-sm text-slate-500">
+                <div>Blue Yonder terms: Allocated, Picking, Packing, Loaded, Ship Confirmed</div>
+                <div>© <script>document.write(new Date().getFullYear())</script> ChainLogic AI</div>
+              </div>
+            </footer>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
 
