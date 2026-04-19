@@ -5,28 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Work Made Clear — ChainLogic AI</title>
     <meta name="description" content="Work Made Clear. ChainLogic AI turns shift chaos into one live plan: what to release, who to move, which door to open." />
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       :root {
         --navy: #0A2342;
+        --navy-2: #13315c;
         --green: #3EB489;
+        --green-2: #2f8f6c;
         --ink: #0f172a;
+        --muted: #64748b;
+        --line: #e5e7eb;
+        --bg: #f8fafc;
+        --bg-soft: #f1f5f9;
       }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
       body {
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--ink);
         background:
           radial-gradient(1200px 600px at 85% -10%, rgba(62,180,137,0.18), transparent 60%),
           radial-gradient(900px 500px at -10% 110%, rgba(10,35,66,0.12), transparent 60%),
-          #f8fafc;
-        color: var(--ink);
-        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+          var(--bg);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
       }
-      .headline {
-        letter-spacing: -0.03em;
-        line-height: 0.95;
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; cursor: pointer; border: 0; background: none; }
+      ol, ul { margin: 0; padding: 0; list-style: none; }
+
+      .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+      @media (min-width: 768px) { .wrap { padding: 64px 32px; } }
+
+      /* Top bar */
+      .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 48px; }
+      .brand { display: flex; align-items: center; gap: 10px; }
+      .brand-bar { width: 4px; height: 32px; border-radius: 9999px; background: var(--green); }
+      .brand-name { font-size: 18px; font-weight: 600; color: var(--navy); letter-spacing: -0.01em; }
+      .top-right { display: none; align-items: center; gap: 12px; font-size: 14px; color: var(--muted); }
+      .top-right a { color: var(--navy); font-weight: 600; }
+      .top-divider { color: #cbd5e1; }
+      @media (min-width: 768px) { .top-right { display: flex; } }
+
+      /* Hero */
+      .hero {
+        display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center;
       }
+      @media (min-width: 1024px) {
+        .hero { grid-template-columns: 1fr 1fr; gap: 64px; }
+      }
+
       .chip {
-        display: inline-flex; align-items: center; gap: 0.4rem;
-        padding: 4px 10px; border-radius: 9999px;
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 4px 12px; border-radius: 9999px;
         background: rgba(62,180,137,0.12);
         color: #0f5132;
         font-size: 12px; font-weight: 600;
@@ -34,230 +64,239 @@
       }
       .chip .dot {
         width: 6px; height: 6px; border-radius: 9999px; background: var(--green);
-        box-shadow: 0 0 0 4px rgba(62,180,137,0.2);
+        box-shadow: 0 0 0 4px rgba(62,180,137,0.22);
       }
-      .cta-primary {
-        background: var(--navy); color: white;
-        padding: 0.85rem 1.2rem; border-radius: 0.75rem;
-        font-weight: 600; font-size: 0.95rem;
-        box-shadow: 0 8px 20px -8px rgba(10,35,66,0.55);
+      .headline {
+        margin: 20px 0 0; font-weight: 700;
+        font-size: 56px; line-height: 0.95; letter-spacing: -0.035em;
+        color: var(--navy);
+      }
+      @media (min-width: 768px) { .headline { font-size: 72px; } }
+      @media (min-width: 1280px) { .headline { font-size: 88px; } }
+      .headline .accent { color: var(--green); }
+      .sub {
+        margin: 20px 0 0; max-width: 560px;
+        font-size: 18px; line-height: 1.5; color: #475569;
+      }
+      @media (min-width: 768px) { .sub { font-size: 20px; } }
+
+      .ctas { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 14px 20px; border-radius: 12px;
+        font-weight: 600; font-size: 15px;
         transition: transform .15s ease;
       }
-      .cta-primary:hover { transform: translateY(-1px); }
-      .cta-secondary {
-        background: white; color: var(--navy);
-        padding: 0.85rem 1.2rem; border-radius: 0.75rem;
-        font-weight: 600; font-size: 0.95rem;
-        border: 1px solid #e2e8f0;
-      }
-      .panel {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 1.25rem;
-        box-shadow:
-          0 1px 2px rgba(16,24,40,0.04),
-          0 20px 40px -20px rgba(10,35,66,0.25);
-      }
-      .stat-num {
-        font-size: 1.75rem; font-weight: 700; color: var(--navy);
-        letter-spacing: -0.02em;
-      }
-      .tick {
-        width: 18px; height: 18px; border-radius: 9999px;
-        background: rgba(62,180,137,0.15); color: #0f5132;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 12px; font-weight: 700; flex: none;
-      }
-      .bar-track {
-        height: 6px; border-radius: 9999px; background: #e2e8f0; overflow: hidden;
-      }
-      .bar-fill {
-        height: 100%; background: linear-gradient(90deg, var(--green), #2f8f6c);
-        border-radius: 9999px;
-      }
-      .alert-row {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 0.6rem 0.75rem; border-radius: 0.75rem;
-        border: 1px solid #e5e7eb; background: #fff;
-      }
-      .sev {
-        width: 8px; height: 8px; border-radius: 9999px; flex: none;
-      }
-      .sev.red { background: #dc2626; box-shadow: 0 0 0 4px rgba(220,38,38,0.12); }
-      .sev.amber { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,0.12); }
-      .sev.green { background: var(--green); box-shadow: 0 0 0 4px rgba(62,180,137,0.15); }
-      .stamp {
-        font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-        color: #64748b; font-weight: 600;
-      }
-      .accent-bar {
-        width: 4px; border-radius: 9999px; background: var(--green);
-      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn-primary { background: var(--navy); color: #fff; box-shadow: 0 8px 20px -8px rgba(10,35,66,0.55); }
+      .btn-primary:hover { background: var(--navy-2); }
+      .btn-secondary { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+
+      .stats { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 520px; }
+      .stat-num { font-size: 28px; font-weight: 700; color: var(--navy); letter-spacing: -0.02em; line-height: 1; }
+      .stat-lbl { margin-top: 6px; font-size: 12px; color: var(--muted); }
+
+      /* Visual panel */
+      .visual { position: relative; }
       .grid-bg {
+        position: absolute; inset: 0;
         background-image:
           linear-gradient(to right, rgba(10,35,66,0.06) 1px, transparent 1px),
           linear-gradient(to bottom, rgba(10,35,66,0.06) 1px, transparent 1px);
         background-size: 28px 28px;
+        border-radius: 24px;
+        z-index: 0;
       }
+      .panel {
+        position: relative; z-index: 1;
+        background: #fff; border: 1px solid var(--line); border-radius: 20px;
+        box-shadow: 0 1px 2px rgba(16,24,40,0.04), 0 20px 40px -20px rgba(10,35,66,0.25);
+        padding: 20px;
+      }
+      @media (min-width: 768px) { .panel { padding: 24px; } }
+
+      .panel-top { display: flex; align-items: center; justify-content: space-between; }
+      .panel-title { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--navy); }
+      .stamp { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+      .sev { width: 8px; height: 8px; border-radius: 9999px; flex: none; }
+      .sev.red { background: #dc2626; box-shadow: 0 0 0 4px rgba(220,38,38,0.12); }
+      .sev.amber { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,0.12); }
+      .sev.green { background: var(--green); box-shadow: 0 0 0 4px rgba(62,180,137,0.18); }
+
+      .kpis { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .kpi { background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+      .kpi-lbl { font-size: 12px; color: var(--muted); }
+      .kpi-val { margin-top: 4px; font-size: 20px; font-weight: 700; color: var(--navy); }
+
+      .moves { margin-top: 20px; }
+      .moves ol { margin-top: 8px; display: flex; flex-direction: column; gap: 10px; }
+      .move { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: #1e293b; }
+      .tick {
+        width: 20px; height: 20px; border-radius: 9999px;
+        background: rgba(62,180,137,0.15); color: #0f5132;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: 700; flex: none;
+      }
+
+      .progress { margin-top: 18px; }
+      .progress-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+      .bar-track { margin-top: 8px; height: 6px; border-radius: 9999px; background: #e2e8f0; overflow: hidden; }
+      .bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--green-2)); border-radius: 9999px; }
+
+      .alerts { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+      .alert {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: #fff;
+      }
+      .alert-left { display: flex; align-items: center; gap: 12px; font-size: 14px; }
+      .alert-action { font-size: 12px; font-weight: 600; color: var(--navy); }
+
+      /* Value row */
+      .values { margin-top: 80px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+      @media (min-width: 768px) { .values { grid-template-columns: repeat(3, 1fr); } }
+      .value { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 24px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
+      .value h3 { margin: 8px 0 8px; font-size: 18px; font-weight: 700; color: var(--navy); letter-spacing: -0.01em; }
+      .value p { margin: 0; font-size: 14px; color: #475569; line-height: 1.55; }
+
+      /* CTA band */
+      .band {
+        margin-top: 80px; padding: 32px;
+        background: #fff; border: 1px solid var(--line); border-radius: 20px;
+        display: flex; flex-direction: column; gap: 20px;
+        box-shadow: 0 1px 2px rgba(16,24,40,0.04), 0 20px 40px -20px rgba(10,35,66,0.18);
+      }
+      @media (min-width: 768px) {
+        .band { padding: 40px; flex-direction: row; align-items: center; justify-content: space-between; }
+      }
+      .band-title { font-size: 24px; font-weight: 700; color: var(--navy); letter-spacing: -0.02em; line-height: 1.25; }
+      @media (min-width: 768px) { .band-title { font-size: 28px; } }
+      .band-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+      footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
     </style>
   </head>
   <body>
-    <main class="mx-auto max-w-7xl px-6 py-10 md:py-16">
-      <!-- Top bar -->
-      <div class="flex items-center justify-between mb-12">
-        <div class="flex items-center gap-2">
-          <div class="accent-bar h-8"></div>
-          <div class="text-lg font-semibold tracking-tight" style="color: var(--navy)">ChainLogic AI</div>
+    <main class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-bar"></div>
+          <div class="brand-name">ChainLogic AI</div>
         </div>
-        <div class="hidden md:flex items-center gap-3 text-sm text-slate-600">
+        <div class="top-right">
           <span>Outbound Control Tower</span>
-          <span class="text-slate-300">|</span>
-          <a href="#demo" class="font-medium" style="color: var(--navy)">See it live →</a>
+          <span class="top-divider">|</span>
+          <a href="#demo">See it live →</a>
         </div>
       </div>
 
-      <!-- Hero grid -->
-      <section class="grid gap-10 lg:grid-cols-12 items-center">
-        <!-- Copy -->
-        <div class="lg:col-span-6">
+      <section class="hero">
+        <div>
           <span class="chip"><span class="dot"></span> For DCs running Blue Yonder WMS</span>
-          <h1 class="headline mt-5 text-5xl md:text-6xl lg:text-7xl font-semibold" style="color: var(--navy)">
-            Work<br/>Made<br/>
-            <span style="color: var(--green)">Clear.</span>
+          <h1 class="headline">
+            Work<br/>Made<br/><span class="accent">Clear.</span>
           </h1>
-          <p class="mt-6 text-lg md:text-xl text-slate-600 max-w-xl">
+          <p class="sub">
             Stop chasing spreadsheets, radios, and screens. ChainLogic AI fuses your WMS, TMS, and dock into one live plan — so every shift starts with the next right move.
           </p>
 
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="#demo" class="cta-primary">Book a 20-min walkthrough</a>
-            <a href="index.html" class="cta-secondary">View preview →</a>
+          <div class="ctas">
+            <a href="#demo" class="btn btn-primary">Book a 20-min walkthrough</a>
+            <a href="index.html" class="btn btn-secondary">View preview →</a>
           </div>
 
-          <div class="mt-10 grid grid-cols-3 gap-6 max-w-lg">
+          <div class="stats">
             <div>
               <div class="stat-num">-42%</div>
-              <div class="text-xs text-slate-500 mt-1">Late shipments in wk 1</div>
+              <div class="stat-lbl">Late shipments in wk 1</div>
             </div>
             <div>
               <div class="stat-num">11 min</div>
-              <div class="text-xs text-slate-500 mt-1">Close → confirm latency</div>
+              <div class="stat-lbl">Close → confirm latency</div>
             </div>
             <div>
               <div class="stat-num">1 plan</div>
-              <div class="text-xs text-slate-500 mt-1">Not 14 dashboards</div>
+              <div class="stat-lbl">Not 14 dashboards</div>
             </div>
           </div>
         </div>
 
-        <!-- Visual: mock control tower card -->
-        <div class="lg:col-span-6">
-          <div class="relative">
-            <div class="absolute inset-0 rounded-[1.5rem] grid-bg -z-0"></div>
-            <div class="panel relative p-5 md:p-6">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="sev green"></span>
-                  <div class="text-sm font-semibold" style="color: var(--navy)">Shift plan — 12:04</div>
-                </div>
-                <div class="stamp">Live</div>
+        <div class="visual">
+          <div class="grid-bg"></div>
+          <div class="panel">
+            <div class="panel-top">
+              <div class="panel-title">
+                <span class="sev green"></span>
+                <span>Shift plan — 12:04</span>
               </div>
+              <div class="stamp">Live</div>
+            </div>
 
-              <div class="mt-5 grid grid-cols-3 gap-3">
-                <div class="rounded-xl border bg-slate-50/70 p-3">
-                  <div class="text-xs text-slate-500">On-time</div>
-                  <div class="mt-1 text-xl font-semibold" style="color: var(--navy)">93%</div>
-                </div>
-                <div class="rounded-xl border bg-slate-50/70 p-3">
-                  <div class="text-xs text-slate-500">Loads</div>
-                  <div class="mt-1 text-xl font-semibold" style="color: var(--navy)">126</div>
-                </div>
-                <div class="rounded-xl border bg-slate-50/70 p-3">
-                  <div class="text-xs text-slate-500">Latency</div>
-                  <div class="mt-1 text-xl font-semibold" style="color: var(--navy)">11m</div>
-                </div>
+            <div class="kpis">
+              <div class="kpi"><div class="kpi-lbl">On-time</div><div class="kpi-val">93%</div></div>
+              <div class="kpi"><div class="kpi-lbl">Loads</div><div class="kpi-val">126</div></div>
+              <div class="kpi"><div class="kpi-lbl">Latency</div><div class="kpi-val">11m</div></div>
+            </div>
+
+            <div class="moves">
+              <div class="stamp">Next right moves</div>
+              <ol>
+                <li class="move"><span class="tick">1</span><span>Release <b>Wave 43</b> (Aisles B→D) — UPS 15:00 cutoff at risk.</span></li>
+                <li class="move"><span class="tick">2</span><span>Move <b>2 associates</b> to Pack 3 until 14:30.</span></li>
+                <li class="move"><span class="tick">3</span><span>Reassign <b>Load 1189</b> from Door 6 → Door 2.</span></li>
+              </ol>
+            </div>
+
+            <div class="progress">
+              <div class="progress-head">
+                <span>Wave 43 progress</span><span>61% picked · 41% packed</span>
               </div>
+              <div class="bar-track"><div class="bar-fill" style="width: 61%"></div></div>
+            </div>
 
-              <div class="mt-5">
-                <div class="stamp mb-2">Next right moves</div>
-                <ol class="space-y-2 text-sm">
-                  <li class="flex items-start gap-3">
-                    <span class="tick">1</span>
-                    <span>Release <b>Wave 43</b> (Aisles B→D) — UPS 15:00 cutoff at risk.</span>
-                  </li>
-                  <li class="flex items-start gap-3">
-                    <span class="tick">2</span>
-                    <span>Move <b>2 associates</b> to Pack 3 until 14:30.</span>
-                  </li>
-                  <li class="flex items-start gap-3">
-                    <span class="tick">3</span>
-                    <span>Reassign <b>Load 1189</b> from Door 6 → Door 2.</span>
-                  </li>
-                </ol>
+            <div class="alerts">
+              <div class="alert">
+                <div class="alert-left"><span class="sev red"></span><span>Routing guide fail — Shipment 1247</span></div>
+                <span class="alert-action">Reprint UCC-128</span>
               </div>
-
-              <div class="mt-5">
-                <div class="flex items-center justify-between text-xs text-slate-500">
-                  <span>Wave 43 progress</span><span>61% picked · 41% packed</span>
-                </div>
-                <div class="bar-track mt-2"><div class="bar-fill" style="width: 61%"></div></div>
-              </div>
-
-              <div class="mt-5 space-y-2">
-                <div class="alert-row">
-                  <div class="flex items-center gap-3">
-                    <span class="sev red"></span>
-                    <span class="text-sm">Routing guide fail — Shipment 1247</span>
-                  </div>
-                  <span class="text-xs font-semibold" style="color: var(--navy)">Reprint UCC-128</span>
-                </div>
-                <div class="alert-row">
-                  <div class="flex items-center gap-3">
-                    <span class="sev amber"></span>
-                    <span class="text-sm">Door 6 over capacity — move Load 1189</span>
-                  </div>
-                  <span class="text-xs font-semibold" style="color: var(--navy)">Reassign door</span>
-                </div>
+              <div class="alert">
+                <div class="alert-left"><span class="sev amber"></span><span>Door 6 over capacity — move Load 1189</span></div>
+                <span class="alert-action">Reassign door</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Value row -->
-      <section class="mt-20 grid gap-6 md:grid-cols-3">
-        <div class="panel p-6">
+      <section class="values">
+        <div class="value">
           <div class="stamp">One source of truth</div>
-          <div class="mt-2 text-lg font-semibold" style="color: var(--navy)">See the whole shift</div>
-          <p class="mt-2 text-sm text-slate-600">Cutoffs, waves, doors, labels, loads — in one screen with risk scored in red/amber/green.</p>
+          <h3>See the whole shift</h3>
+          <p>Cutoffs, waves, doors, labels, loads — in one screen with risk scored in red/amber/green.</p>
         </div>
-        <div class="panel p-6">
+        <div class="value">
           <div class="stamp">AI copilot</div>
-          <div class="mt-2 text-lg font-semibold" style="color: var(--navy)">Know the next move</div>
-          <p class="mt-2 text-sm text-slate-600">Tells you which wave to release, who to move, and which door to open — with the why behind it.</p>
+          <h3>Know the next move</h3>
+          <p>Tells you which wave to release, who to move, and which door to open — with the why behind it.</p>
         </div>
-        <div class="panel p-6">
+        <div class="value">
           <div class="stamp">Works with your stack</div>
-          <div class="mt-2 text-lg font-semibold" style="color: var(--navy)">Plugs into Blue Yonder</div>
-          <p class="mt-2 text-sm text-slate-600">Native terms: Allocated, Picking, Packing, Loaded, Ship Confirmed. Stand up in days, not quarters.</p>
+          <h3>Plugs into Blue Yonder</h3>
+          <p>Native terms: Allocated, Picking, Packing, Loaded, Ship Confirmed. Stand up in days, not quarters.</p>
         </div>
       </section>
 
-      <!-- Bottom CTA -->
-      <section id="demo" class="mt-20 panel p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <section id="demo" class="band">
         <div>
           <div class="stamp">Ready when you are</div>
-          <div class="mt-1 text-2xl md:text-3xl font-semibold" style="color: var(--navy)">
-            Let us turn your next shift into one clear plan.
-          </div>
+          <div class="band-title">Let us turn your next shift into one clear plan.</div>
         </div>
-        <div class="flex gap-3">
-          <a href="#" class="cta-primary">Book a walkthrough</a>
-          <a href="index.html" class="cta-secondary">See the preview</a>
+        <div class="band-ctas">
+          <a href="#" class="btn btn-primary">Book a walkthrough</a>
+          <a href="index.html" class="btn btn-secondary">See the preview</a>
         </div>
       </section>
 
-      <footer class="mt-10 flex items-center justify-between text-xs text-slate-500">
+      <footer>
         <div>© <span id="yr"></span> ChainLogic AI — Work Made Clear.</div>
         <div>Outbound Control Tower</div>
       </footer>
