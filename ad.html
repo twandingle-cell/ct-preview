@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Work Made Clear — ChainLogic AI</title>
+    <meta name="description" content="Work Made Clear. ChainLogic AI turns shift chaos into one live plan: what to release, who to move, which door to open." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --navy: #0A2342;
+        --green: #3EB489;
+        --ink: #0f172a;
+      }
+      body {
+        background:
+          radial-gradient(1200px 600px at 85% -10%, rgba(62,180,137,0.18), transparent 60%),
+          radial-gradient(900px 500px at -10% 110%, rgba(10,35,66,0.12), transparent 60%),
+          #f8fafc;
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+      }
+      .headline {
+        letter-spacing: -0.03em;
+        line-height: 0.95;
+      }
+      .chip {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 4px 10px; border-radius: 9999px;
+        background: rgba(62,180,137,0.12);
+        color: #0f5132;
+        font-size: 12px; font-weight: 600;
+        border: 1px solid rgba(62,180,137,0.35);
+      }
+      .chip .dot {
+        width: 6px; height: 6px; border-radius: 9999px; background: var(--green);
+        box-shadow: 0 0 0 4px rgba(62,180,137,0.2);
+      }
+      .cta-primary {
+        background: var(--navy); color: white;
+        padding: 0.85rem 1.2rem; border-radius: 0.75rem;
+        font-weight: 600; font-size: 0.95rem;
+        box-shadow: 0 8px 20px -8px rgba(10,35,66,0.55);
+        transition: transform .15s ease;
+      }
+      .cta-primary:hover { transform: translateY(-1px); }
+      .cta-secondary {
+        background: white; color: var(--navy);
+        padding: 0.85rem 1.2rem; border-radius: 0.75rem;
+        font-weight: 600; font-size: 0.95rem;
+        border: 1px solid #e2e8f0;
+      }
+      .panel {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 1.25rem;
+        box-shadow:
+          0 1px 2px rgba(16,24,40,0.04),
+          0 20px 40px -20px rgba(10,35,66,0.25);
+      }
+      .stat-num {
+        font-size: 1.75rem; font-weight: 700; color: var(--navy);
+        letter-spacing: -0.02em;
+      }
+      .tick {
+        width: 18px; height: 18px; border-radius: 9999px;
+        background: rgba(62,180,137,0.15); color: #0f5132;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: 700; flex: none;
+      }
+      .bar-track {
+        height: 6px; border-radius: 9999px; background: #e2e8f0; overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%; background: linear-gradient(90deg, var(--green), #2f8f6c);
+        border-radius: 9999px;
+      }
+      .alert-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.6rem 0.75rem; border-radius: 0.75rem;
+        border: 1px solid #e5e7eb; background: #fff;
+      }
+      .sev {
+        width: 8px; height: 8px; border-radius: 9999px; flex: none;
+      }
+      .sev.red { background: #dc2626; box-shadow: 0 0 0 4px rgba(220,38,38,0.12); }
+      .sev.amber { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,0.12); }
+      .sev.green { background: var(--green); box-shadow: 0 0 0 4px rgba(62,180,137,0.15); }
+      .stamp {
+        font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+        color: #64748b; font-weight: 600;
+      }
+      .accent-bar {
+        width: 4px; border-radius: 9999px; background: var(--green);
+      }
+      .grid-bg {
+        background-image:
+          linear-gradient(to right, rgba(10,35,66,0.06) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(10,35,66,0.06) 1px, transparent 1px);
+        background-size: 28px 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="mx-auto max-w-7xl px-6 py-10 md:py-16">
+      <!-- Top bar -->
+      <div class="flex items-center justify-between mb-12">
+        <div class="flex items-center gap-2">
+          <div class="accent-bar h-8"></div>
+          <div class="text-lg font-semibold tracking-tight" style="color: var(--navy)">ChainLogic AI</div>
+        </div>
+        <div class="hidden md:flex items-center gap-3 text-sm text-slate-600">
+          <span>Outbound Control Tower</span>
+          <span class="text-slate-300">|</span>
+          <a href="#demo" class="font-medium" style="color: var(--navy)">See it live →</a>
+        </div>
+      </div>
+
+      <!-- Hero grid -->
+      <section class="grid gap-10 lg:grid-cols-12 items-center">
+        <!-- Copy -->
+        <div class="lg:col-span-6">
+          <span class="chip"><span class="dot"></span> For DCs running Blue Yonder WMS</span>
+          <h1 class="headline mt-5 text-5xl md:text-6xl lg:text-7xl font-semibold" style="color: var(--navy)">
+            Work<br/>Made<br/>
+            <span style="color: var(--green)">Clear.</span>
+          </h1>
+          <p class="mt-6 text-lg md:text-xl text-slate-600 max-w-xl">
+            Stop chasing spreadsheets, radios, and screens. ChainLogic AI fuses your WMS, TMS, and dock into one live plan — so every shift starts with the next right move.
+          </p>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#demo" class="cta-primary">Book a 20-min walkthrough</a>
+            <a href="index.html" class="cta-secondary">View preview →</a>
+          </div>
+
+          <div class="mt-10 grid grid-cols-3 gap-6 max-w-lg">
+            <div>
+              <div class="stat-num">-42%</div>
+              <div class="text-xs text-slate-500 mt-1">Late shipments in wk 1</div>
+            </div>
+            <div>
+              <div class="stat-num">11 min</div>
+              <div class="text-xs text-slate-500 mt-1">Close → confirm latency</div>
+            </div>
+            <div>
+              <div class="stat-num">1 plan</div>
+              <div class="text-xs text-slate-500 mt-1">Not 14 dashboards</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual: mock control tower card -->
+        <div class="lg:col-span-6">
+          <div class="relative">
+            <div class="absolute inset-0 rounded-[1.5rem] grid-bg -z-0"></div>
+            <div class="panel relative p-5 md:p-6">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="sev green"></span>
+                  <div class="text-sm font-semibold" style="color: var(--navy)">Shift plan — 12:04</div>
+                </div>
+                <div class="stamp">Live</div>
+              </div>
+
+              <div class="mt-5 grid grid-cols-3 gap-3">
+                <div class="rounded-xl border bg-slate-50/70 p-3">
+                  <div class="text-xs text-slate-500">On-time</div>
+                  <div class="mt-1 text-xl font-semibold" style="color: var(--navy)">93%</div>
+                </div>
+                <div class="rounded-xl border bg-slate-50/70 p-3">
+                  <div class="text-xs text-slate-500">Loads</div>
+                  <div class="mt-1 text-xl font-semibold" style="color: var(--navy)">126</div>
+                </div>
+                <div class="rounded-xl border bg-slate-50/70 p-3">
+                  <div class="text-xs text-slate-500">Latency</div>
+                  <div class="mt-1 text-xl font-semibold" style="color: var(--navy)">11m</div>
+                </div>
+              </div>
+
+              <div class="mt-5">
+                <div class="stamp mb-2">Next right moves</div>
+                <ol class="space-y-2 text-sm">
+                  <li class="flex items-start gap-3">
+                    <span class="tick">1</span>
+                    <span>Release <b>Wave 43</b> (Aisles B→D) — UPS 15:00 cutoff at risk.</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="tick">2</span>
+                    <span>Move <b>2 associates</b> to Pack 3 until 14:30.</span>
+                  </li>
+                  <li class="flex items-start gap-3">
+                    <span class="tick">3</span>
+                    <span>Reassign <b>Load 1189</b> from Door 6 → Door 2.</span>
+                  </li>
+                </ol>
+              </div>
+
+              <div class="mt-5">
+                <div class="flex items-center justify-between text-xs text-slate-500">
+                  <span>Wave 43 progress</span><span>61% picked · 41% packed</span>
+                </div>
+                <div class="bar-track mt-2"><div class="bar-fill" style="width: 61%"></div></div>
+              </div>
+
+              <div class="mt-5 space-y-2">
+                <div class="alert-row">
+                  <div class="flex items-center gap-3">
+                    <span class="sev red"></span>
+                    <span class="text-sm">Routing guide fail — Shipment 1247</span>
+                  </div>
+                  <span class="text-xs font-semibold" style="color: var(--navy)">Reprint UCC-128</span>
+                </div>
+                <div class="alert-row">
+                  <div class="flex items-center gap-3">
+                    <span class="sev amber"></span>
+                    <span class="text-sm">Door 6 over capacity — move Load 1189</span>
+                  </div>
+                  <span class="text-xs font-semibold" style="color: var(--navy)">Reassign door</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Value row -->
+      <section class="mt-20 grid gap-6 md:grid-cols-3">
+        <div class="panel p-6">
+          <div class="stamp">One source of truth</div>
+          <div class="mt-2 text-lg font-semibold" style="color: var(--navy)">See the whole shift</div>
+          <p class="mt-2 text-sm text-slate-600">Cutoffs, waves, doors, labels, loads — in one screen with risk scored in red/amber/green.</p>
+        </div>
+        <div class="panel p-6">
+          <div class="stamp">AI copilot</div>
+          <div class="mt-2 text-lg font-semibold" style="color: var(--navy)">Know the next move</div>
+          <p class="mt-2 text-sm text-slate-600">Tells you which wave to release, who to move, and which door to open — with the why behind it.</p>
+        </div>
+        <div class="panel p-6">
+          <div class="stamp">Works with your stack</div>
+          <div class="mt-2 text-lg font-semibold" style="color: var(--navy)">Plugs into Blue Yonder</div>
+          <p class="mt-2 text-sm text-slate-600">Native terms: Allocated, Picking, Packing, Loaded, Ship Confirmed. Stand up in days, not quarters.</p>
+        </div>
+      </section>
+
+      <!-- Bottom CTA -->
+      <section id="demo" class="mt-20 panel p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div>
+          <div class="stamp">Ready when you are</div>
+          <div class="mt-1 text-2xl md:text-3xl font-semibold" style="color: var(--navy)">
+            Let us turn your next shift into one clear plan.
+          </div>
+        </div>
+        <div class="flex gap-3">
+          <a href="#" class="cta-primary">Book a walkthrough</a>
+          <a href="index.html" class="cta-secondary">See the preview</a>
+        </div>
+      </section>
+
+      <footer class="mt-10 flex items-center justify-between text-xs text-slate-500">
+        <div>© <span id="yr"></span> ChainLogic AI — Work Made Clear.</div>
+        <div>Outbound Control Tower</div>
+      </footer>
+      <script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+    </main>
+  </body>
+</html>
