@@ -109,9 +109,49 @@ def bolt(size, color):
                (S*0.40,S*0.88),(S*0.74,S*0.42),(S*0.52,S*0.42)], fill=color)
     return _fin(img, size)
 
+def mic(size, color):
+    img, d, S = _canvas(size); lw=int(S*0.075)
+    # capsule
+    cw=S*0.30
+    d.rounded_rectangle([S/2-cw/2, S*0.12, S/2+cw/2, S*0.56], radius=cw/2, fill=color)
+    # cradle arc
+    d.arc([S*0.26, S*0.30, S*0.74, S*0.70], 20, 160, fill=color, width=lw)
+    # stand
+    d.line([(S/2,S*0.70),(S/2,S*0.84)], fill=color, width=lw)
+    d.line([(S*0.36,S*0.86),(S*0.64,S*0.86)], fill=color, width=lw)
+    return _fin(img, size)
+
+def doc(size, color):
+    img, d, S = _canvas(size); lw=int(S*0.07)
+    x0,y0,x1,y1=S*0.24,S*0.14,S*0.76,S*0.86
+    fold=S*0.16
+    d.polygon([(x0,y0),(x1-fold,y0),(x1,y0+fold),(x1,y1),(x0,y1)], outline=color, width=lw)
+    d.line([(x1-fold,y0),(x1-fold,y0+fold),(x1,y0+fold)], fill=color, width=lw)
+    for i in range(3):
+        yy=S*0.42+i*S*0.14
+        d.line([(x0+S*0.08,yy),(x1-S*0.08,yy)], fill=color, width=int(S*0.045))
+    return _fin(img, size)
+
+def sparkle(size, color):
+    img, d, S = _canvas(size)
+    def star(cx,cy,r):
+        d.polygon([(cx,cy-r),(cx+r*0.28,cy-r*0.28),(cx+r,cy),(cx+r*0.28,cy+r*0.28),
+                   (cx,cy+r),(cx-r*0.28,cy+r*0.28),(cx-r,cy),(cx-r*0.28,cy-r*0.28)], fill=color)
+    star(S*0.46,S*0.44,S*0.30); star(S*0.74,S*0.72,S*0.15)
+    return _fin(img, size)
+
+def bell(size, color):
+    img, d, S = _canvas(size); lw=int(S*0.07)
+    d.pieslice([S*0.24,S*0.18,S*0.76,S*0.74], 180, 360, fill=color)
+    d.rectangle([S*0.24,S*0.46,S*0.76,S*0.66], fill=color)
+    d.line([(S*0.18,S*0.68),(S*0.82,S*0.68)], fill=color, width=lw)
+    d.ellipse([S/2-S*0.06,S*0.70,S/2+S*0.06,S*0.82], fill=color)
+    return _fin(img, size)
+
 ICONS = dict(droplet=droplet, gear=gear, barrier=barrier, camera=camera,
              pin=pin, clipboard=clipboard, person=person, check=check,
-             home=home, warn=warn, bolt=bolt)
+             home=home, warn=warn, bolt=bolt, mic=mic, doc=doc,
+             sparkle=sparkle, bell=bell)
 
 def paste_icon(img, name, x, y, size, color):
     ic = ICONS[name](size, color)
