@@ -1,0 +1,10 @@
+# Downloaded AI footage / generated media (regenerated from scripts + Higgsfield)
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.mov
+*.webp
+*.wav
+*.mp3
+!.gitignore
