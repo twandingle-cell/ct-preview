@@ -7,24 +7,36 @@ QR target: **https://safetycallout.com/demo** (user hosts the final MP4 there).
 
 ---
 
-## STATUS
+## ✅ DELIVERED (local version — shipped, committed & pushed)
 
-**Done & committed** (no network needed — all regenerate from scripts):
-- `brand.py` — official brand: orange `#F57820` on near-black `#0A0A0A`, **SC** monogram, corner glow, mono kickers.
-- `icons.py` — vector UI icons (mic, doc, sparkle, pin, camera, etc.).
-- `screens.py` — voice-first flow → `screens/`: `01_home`, `02_listen` (mic + live transcript), `03_review` (AI-drafted OSHA-ready report), `04_submit`, `05_confirm`.
-- `qr.py` — branded QR with SC mark, decode-verified → `assets/qr_demo.png`.
-- `cards.py` — video end-card → `assets/end_card.png`.
+- **Demo video** `video/safetycallout_demo.mp4` — 25.5s, 9:16, on-brand, ambient audio.
+  Hook → one-tap → speak (live waveform + transcript) → AI OSHA-ready report →
+  submit → confirmed → QR end-card. Built fully locally by `build_video.py`.
+- **Print-ready flyer** `assets/flyer.png` + `assets/flyer.pdf` (US Letter) — `make_flyer.py`.
+  Scannable QR (decode-verified), phone mockup, voice-first messaging.
+- **Editable Canva flyer** — design id `DAHNHCLWILI`
+  - Edit: https://www.canva.com/d/mDiU0L_PRieswrb
+  - View: https://www.canva.com/d/f3gvRcHyDC3AtO7
+  - (QR Canva asset id `MAHNHN6KCms`; cleaned of AI-template junk, headline + DEMO CTA fixed.)
+- **Embed page** `demo/` (index.html + safetycallout_demo.mp4 + poster.jpg) — drop the
+  folder at safetycallout.com/demo so the QR opens a branded scan→watch page.
+- **Brand system** `brand.py` (orange #F57820 / near-black, SC monogram), `icons.py`,
+  `screens.py` (voice-first), `qr.py`, `cards.py`, `make_hazard.py`.
 
-**Pending** (needs Higgsfield CDN egress — now allowlisted in a NEW session):
-1. Download the 2 generated images; drop the hazard photo into `03_review`.
-2. Generate + download 3 AI warehouse clips.
-3. Stitch the final vertical MP4 (clips + app screens + end-card + narration).
-4. Build the editable Canva flyer around the QR.
+### To regenerate everything
+`python3 brand.py icons.py screens.py make_hazard.py cards.py qr.py make_flyer.py`
+then `python3 build_video.py` (ffmpeg via `imageio-ffmpeg`).
 
 ---
 
-## FIRST STEP in the new session — verify egress
+## OPTIONAL UPGRADE — AI-footage cut (needs Higgsfield CDN egress in a NEW session)
+
+The current video is fully local (stylized, no photoreal person). To swap in real
+AI warehouse footage, start a new session in the egress-enabled environment and
+follow the pipeline below.
+
+### Verify egress first
+
 
 ```bash
 cd safetycallout && curl -sS -L -o clips/char.png -w "%{http_code}\n" \
