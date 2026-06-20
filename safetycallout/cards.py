@@ -35,6 +35,22 @@ def end_card(W=1080, H=1920, qr_path="assets/qr_demo.png"):
     text_center(d, W/2, cy0+qs+2*card_pad+110, "safetycallout.com", mono(36), ORANGE)
     return img
 
+def hook_card(W=1080, H=1920):
+    img = Image.new("RGB", (W, H), INK)
+    corner_glow(img, "tr", 1.0)
+    d = ImageDraw.Draw(img)
+    wm = wordmark(74)
+    img.paste(wm, (W//2 - wm.width//2, 300), wm)
+    text_center(d, W/2, 560, "// SHIFT A · 9:41 AM", mono(34), MUTED)
+    text_center(d, W/2, 820, "A hazard on", font(96), WHITE)
+    text_center(d, W/2, 930, "the floor.", font(96), WHITE)
+    text_center(d, W/2, 1110, "Reported in", font(86), ORANGE)
+    text_center(d, W/2, 1210, "30 seconds.", font(86), ORANGE)
+    d.line([(W/2-60, 1380),(W/2+60, 1380)], fill=ORANGE, width=6)
+    text_center(d, W/2, 1440, "Hands-free. Hard hat on.", font(40, bold=False), MUTED)
+    return img
+
 if __name__ == "__main__":
     end_card().save("assets/end_card.png")
-    print("end card written")
+    hook_card().save("assets/hook_card.png")
+    print("cards written")

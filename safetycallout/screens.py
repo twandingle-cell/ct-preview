@@ -94,14 +94,15 @@ def waveform(d, cx, cy, level=1.0, n=27, spread=560, color=ORANGE):
         h = max(10, min(h, 190))
         d.rounded_rectangle([x-7, cy-h/2, x+7, cy+h/2], radius=7, fill=color)
 
-def screen_listen(level=1.0, transcript=True):
+def screen_listen(level=1.0, transcript=True, draw_wave=True, transcript_n=3, rec=9):
     img, d = base()
     status_bar(d); app_header(img, d, back=True)
     d.text((60, 250), "Describe what happened", font=font(46), fill=WHITE)
     d.text((60, 318), "Speak naturally — SafetyCallout listens", font=font(30, bold=False), fill=MUTED)
 
     # waveform
-    waveform(d, W//2, 560, level=level)
+    if draw_wave:
+        waveform(d, W//2, 560, level=level)
 
     # big mic button with glow rings
     cx, cy, r = W//2, 940, 150
@@ -113,9 +114,9 @@ def screen_listen(level=1.0, transcript=True):
     d.ellipse([cx-r, cy-r, cx+r, cy+r], fill=ORANGE)
     paste_icon(img, "mic", cx-58, cy-66, 116, INK)
     # timer
-    pill(d, cx-95, cy+r+40, "● REC  0:09", WHITE, INK_2, mono(32))
+    pill(d, cx-95, cy+r+40, "● REC  0:%02d" % rec, WHITE, INK_2, mono(32))
 
-    if transcript:
+    if transcript and transcript_n > 0:
         ty=cy+r+150
         rounded(d, [60, ty, W-60, ty+260], 24, fill=INK_2)
         paste_icon(img, "sparkle", 90, ty+30, 40, ORANGE)
@@ -123,7 +124,7 @@ def screen_listen(level=1.0, transcript=True):
         quote=['"There’s a liquid spill by the racking',
                'in Aisle B, Rack 12 — someone could',
                'slip. Medium severity, taping it off now."']
-        for i,l in enumerate(quote):
+        for i,l in enumerate(quote[:transcript_n]):
             d.text((90, ty+96+i*50), l, font=font(31, bold=False), fill=WHITE)
     return img
 
