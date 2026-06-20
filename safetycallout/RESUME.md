@@ -29,6 +29,15 @@ then `python3 build_video.py` (ffmpeg via `imageio-ffmpeg`).
 
 ---
 
+## AI clips already generated (2026-06-20, seedance_2_0, 10s, 9:16, 1080p, audio)
+
+Supervisor notices spill → raises phone → speaks → nods. Reference image `22babfe7…`.
+Download these in the egress-enabled session for the polished intercut:
+- Variant A — job `950e1e46-ebc3-4607-abc0-89da233fb2e8`
+  `https://d8j0ntlcm91z4.cloudfront.net/user_369o6rhJ3A6NBvc4YEC5fcBZIEs/hf_20260620_131414_950e1e46-ebc3-4607-abc0-89da233fb2e8.mp4`
+- Variant B — job `ba23419c-4bbd-40bf-8361-524ba67ef4bf`
+  `https://d8j0ntlcm91z4.cloudfront.net/user_369o6rhJ3A6NBvc4YEC5fcBZIEs/hf_20260620_131414_ba23419c-4bbd-40bf-8361-524ba67ef4bf.mp4`
+
 ## OPTIONAL UPGRADE — AI-footage cut (needs Higgsfield CDN egress in a NEW session)
 
 The current video is fully local (stylized, no photoreal person). To swap in real
