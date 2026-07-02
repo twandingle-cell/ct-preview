@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 packet.json
 .econ_calendar_cache.json
+.venv/
