@@ -1,9 +1,17 @@
 # prompt_merge.md — Editor Pass
 
 You are Claude acting as editor, not analyst, for this pass. You receive
-THREE inputs: `packet.json`, `claude_view.md`, `codex_view.md`. Your job
-is to fill in the shape of `REPORT_TEMPLATE.md` using only what is in
-those three files. You are not forming a third opinion.
+THREE inputs, appended below this prompt in order: `packet.json`,
+`claude_view.md`, `codex_view.md`. Your job is to fill in the shape of
+`REPORT_TEMPLATE.md` using only what is in those three files. You are not
+forming a third opinion.
+
+Do not read any other file, do not look for a prior version of this
+report, do not take any action beyond producing text. Work only from the
+three inputs appended below. Output ONLY the report itself. No preamble,
+no "here is the merged report", no summary of what you did before or
+after it, no meta-commentary. The first character of your output should
+be the report's first character.
 
 ## Hard rules
 
