@@ -67,7 +67,11 @@ PRIMARY_PUBLISHERS = [
     "wsj", "wall street journal",
 ]
 
-COMPANY_STOPWORDS = {
+# Generic name words that must never count as a company match on their own,
+# because they cross-match unrelated firms (e.g. "Applied" hits both Applied
+# Optoelectronics and Applied Digital). Only a token that is both 4+ letters
+# and absent from this set is distinctive enough to identify one company.
+NAME_STOP = {
     "the", "inc", "corp", "corporation", "holdings", "technologies", "technology",
     "group", "digital", "applied", "advanced", "strategy", "strategies", "motors",
     "energy", "platforms", "industries", "international", "systems", "solutions",
@@ -350,7 +354,7 @@ def build_name_tokens(company_name):
     if not company_name:
         return []
     tokens = re.findall(r"[A-Za-z]+", company_name)
-    return [t for t in tokens if t.lower() not in COMPANY_STOPWORDS and len(t) > 2]
+    return [t for t in tokens if len(t) >= 4 and t.lower() not in NAME_STOP]
 
 
 def headline_matches_ticker(text, ticker, name_tokens):
