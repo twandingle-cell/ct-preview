@@ -168,6 +168,16 @@ prose.
   trade without per-trade approval, but every rule above (risk, sizing,
   guardrails, logging) still applies unchanged.
 
+## Email alerts
+
+Every trade proposal — Agentic stock ideas and manual options plays alike —
+also gets a Gmail draft addressed to `twan.dingle@gmail.com` with the same
+content (via the Gmail MCP `create_draft` tool). The connected Gmail tool
+can only create drafts, not send: Twan still has to open and send each one
+himself. Don't claim an alert was "emailed" or "sent" — say a draft was
+created. If a future connector adds real send capability, confirm with Twan
+before switching to auto-send rather than assuming it's wanted.
+
 ## Trade log
 
 Append every placed/cancelled order to `trading/trade_log.md` as a new row —

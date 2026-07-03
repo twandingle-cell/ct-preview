@@ -138,6 +138,17 @@ reporting:
   performance_summary_frequency: daily
   daily_summary_fields: [current_positions, cash_and_deployed_capital, open_orders, unrealized_and_realized_pnl, what_changed_today, risk_limits_hit, tomorrows_watchlist]
 
+email_alerts:
+  enabled: true
+  recipient: twan.dingle@gmail.com
+  trigger: "every trade proposal — Agentic stock trades and manual options plays alike"
+  method: gmail_draft
+  # The connected Gmail MCP tool only supports creating drafts, not sending.
+  # Create a draft (via Gmail create_draft) with the same content as the
+  # chat proposal every time one is given; Twan still has to open and send
+  # each draft himself. If a future connector adds send capability, this can
+  # be revisited — don't silently start sending without him confirming that.
+
 trade_proposal_fields:
   # What every confirm-mode trade idea must include, in this order. Applies
   # to every recommended play — Agentic stock trades AND manual options
