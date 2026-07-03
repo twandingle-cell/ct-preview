@@ -1,0 +1,118 @@
+# strategy_config — Twan (Robinhood Agentic)
+#
+# Parsed from Twan's answers (2026-07-03). Ambiguous inputs are flagged inline;
+# revisit the flagged values before scaling capital_funded_usd beyond the
+# initial $30 test.
+
+account:
+  label: "Twan – Robinhood Agentic"
+  capital_funded_usd: 30
+  # Written as "30" with no unit — treated as $30 initial test capital.
+  # Scale this value (not max_deployment_pct) when adding funds.
+
+deployment:
+  max_deployment_pct: 1.0
+  # Source answer was "1.0 (aggressive)" with a caveat that 0.3 (30%) may have
+  # been intended instead. Kept at 1.0 (100%) to match the stated
+  # risk_tolerance of 5/5 ("aggressive"). At $30 starting capital the dollar
+  # difference is trivial ($30 vs $9) — revisit explicitly before scaling
+  # capital_funded_usd up.
+  max_position_pct: 0.05          # 5% of account value per ticker
+  max_active_tickers_range: [6, 8]
+  stagger_entries: false          # single clean entry, no multi-tranche scaling
+
+risk:
+  risk_tolerance: 5               # 1-5 scale, 5 = aggressive
+  max_daily_loss_stop_pct: 10
+  max_weekly_loss_stop_pct: 20
+  stop_loss_pct_range: [7, 10]    # below entry, for short-term swings
+  take_profit_pct_range: [15, 25] # start evaluating exits in this zone
+  close_or_reduce_if_price_closes_below_200dma: true
+
+instruments:
+  equities: allowed
+  options:
+    live_orders: disallowed
+    # Robinhood Agentic beta is stocks-only. Never place a live option order.
+    simulate_via_stock_sizing: true
+    # Mimic option-like risk/reward with smaller, tightly-stopped stock
+    # positions in high-beta names instead.
+  futures: disallowed
+  margin: disallowed
+  short_selling: disallowed
+  crypto: disallowed
+
+fractional_shares_allowed: true
+
+universe:
+  allowed_caps: large_cap_only
+  hard_filters:
+    min_price_per_share_usd: 5
+    min_avg_daily_volume_shares: 1000000
+  primary_themes: [AI_semiconductors]
+  core_tickers: [NVDA, AAPL, MU, NBIS, WDC, STX, GOOGL, META, NFLX, PLTR, TSLA]
+  allow_new_tickers_in_theme: true
+  # A new ticker outside core_tickers may be proposed only if it passes
+  # hard_filters, gets a one-sentence justification, and (first trade only)
+  # gets Twan's explicit text approval.
+
+style:
+  core_style: short_term_swing
+  trade_frequency: daily
+  allow_same_day_round_trip: true
+  hold_time_days: [1, 5]
+  avoid_after_hours: false
+  after_hours_rules:
+    order_type: limit_only
+    sizing: conservative
+    slippage_tolerance_pct_max: 0.2
+    skip_and_log_if_spread_too_wide: true
+
+signals:
+  trend_filter:
+    require_price_above_50dma: true
+    require_50dma_above_200dma: true
+    no_new_longs_if_price_below_200dma: true
+  dip_entry:
+    pullback_from_10d_high_pct_range: [3, 6]   # adapt within range per volatility
+    require_red_day_vs_prior_close: true
+    require_price_above_50dma: true
+    preferred_names: [NVDA, TSLA, AAPL, GOOGL, META, PLTR]
+    avoid_catastrophic_news_dips: true
+
+execution:
+  order_type_preference: limit_orders_primary
+  slippage_tolerance_pct: 0.3      # tight default for liquid large caps (range 0.2-0.5%)
+  one_new_entry_per_ticker_per_day: true
+  cancel_and_reevaluate_if_unfilled_beyond_slippage: true
+  pre_trade_checks: [current_positions, cash, open_orders, account_value, risk_limits]
+
+reporting:
+  rationale_detail_level: one_sentence
+  persistent_trade_log: true
+  trade_log_path: trading/trade_log.md
+  trade_log_fields: [timestamp, ticker, action, quantity, price, pnl_impact, rationale, rules_triggered]
+  performance_summary_frequency: daily
+
+guardrails:
+  daily_loss_stop:
+    threshold_pct: 10
+    action: "stop opening new positions; only manage/close existing; log with one-sentence explanation"
+  weekly_loss_stop:
+    threshold_pct: 20
+    action: "halt all new trades; ask Twan explicitly whether to continue or reset"
+  no_penny_stocks: true
+  after_hours_widened_spread: "skip the trade and log why"
+
+autonomy:
+  mode: confirm
+  # confirm: every proposed trade gets a one-sentence rationale and waits for
+  #          plain-text approval ("approve"/"yes") before any order is placed.
+  # auto:    entered only after Twan explicitly says "switch to auto mode".
+  #          All risk/guardrail and logging rules still apply in auto mode.
+  confirm_phrases: ["approve", "yes"]
+  switch_to_auto_phrase: "switch to auto mode"
+
+scope:
+  account_restriction: "Only the dedicated Robinhood Agentic account. Never touch other Robinhood accounts or balances."
+  on_mcp_or_auth_failure: "stop trading, log the issue, ask Twan to re-authenticate — do not retry blindly"
