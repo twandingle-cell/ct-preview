@@ -6,9 +6,12 @@
 
 account:
   label: "Twan – Robinhood Agentic"
-  capital_funded_usd: 30
-  # Written as "30" with no unit — treated as $30 initial test capital.
-  # Scale this value (not max_deployment_pct) when adding funds.
+  capital_funded_usd: 100
+  # Originally described as "30" (treated as $30 test capital), but the
+  # account (793965849) confirmed via get_portfolio on 2026-07-03 actually
+  # shows $100 cash / $100 buying power. Using the real funded amount here
+  # since it drives position sizing. Scale this value (not
+  # max_deployment_pct) when adding more funds.
 
 deployment:
   max_deployment_pct: 1.0
