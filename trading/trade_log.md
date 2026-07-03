@@ -3,8 +3,8 @@
 Persistent, append-only log of every order placed (or cancelled) under `trading/strategy_config.yaml`.
 One row per event. Never edit past rows — append corrections as new rows.
 
-| timestamp | ticker | action | quantity | price | pnl_impact | rationale | rules_triggered |
-|---|---|---|---|---|---|---|---|
+| datetime | ticker | action | quantity | price | rationale | signal_type | risk_notes | result_after_exit |
+|---|---|---|---|---|---|---|---|---|
 
 ## Daily Summaries
 

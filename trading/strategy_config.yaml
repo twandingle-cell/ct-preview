@@ -1,45 +1,47 @@
 # strategy_config — Twan (Robinhood Agentic)
 #
-# Parsed from Twan's answers (2026-07-03). Ambiguous inputs are flagged inline;
-# revisit the flagged values before scaling capital_funded_usd beyond the
-# initial $30 test.
+# v1: parsed from Twan's original answers (2026-07-03).
+# v2 (2026-07-03, same day): superseded by Twan's full rules-based spec —
+# tightened max_deployment_pct to 30%, added SPY as a flex instrument driven
+# by daily Discord (Chris) levels, and added decision-priority / reporting
+# detail. Where v2 conflicts with v1, v2 wins; fields below reflect v2.
 
 account:
   label: "Twan – Robinhood Agentic"
   capital_funded_usd: 100
-  # Originally described as "30" (treated as $30 test capital), but the
-  # account (793965849) confirmed via get_portfolio on 2026-07-03 actually
-  # shows $100 cash / $100 buying power. Using the real funded amount here
-  # since it drives position sizing. Scale this value (not
-  # max_deployment_pct) when adding more funds.
+  # Account 793965849 confirmed funded at $100 cash / $100 buying power via
+  # get_portfolio on 2026-07-03. Scale this value (not max_deployment_pct)
+  # when adding more funds.
 
 deployment:
-  max_deployment_pct: 1.0
-  # Source answer was "1.0 (aggressive)" with a caveat that 0.3 (30%) may have
-  # been intended instead. Kept at 1.0 (100%) to match the stated
-  # risk_tolerance of 5/5 ("aggressive"). At $30 starting capital the dollar
-  # difference is trivial ($30 vs $9) — revisit explicitly before scaling
-  # capital_funded_usd up.
-  max_position_pct: 0.05          # 5% of account value per ticker
+  max_deployment_pct: 0.30
+  # Superseded from the original 1.0 (100%) "aggressive" default — Twan's
+  # follow-up spec explicitly sets this to 30% of funded account "unless I
+  # change it." Treat 30% as the current ceiling until he says otherwise.
+  max_position_pct: 0.05          # 5% of account value per ticker, never exceeded
   max_active_tickers_range: [6, 8]
   stagger_entries: false          # single clean entry, no multi-tranche scaling
 
 risk:
   risk_tolerance: 5               # 1-5 scale, 5 = aggressive
-  max_daily_loss_stop_pct: 10
-  max_weekly_loss_stop_pct: 20
-  stop_loss_pct_range: [7, 10]    # below entry, for short-term swings
-  take_profit_pct_range: [15, 25] # start evaluating exits in this zone
+  max_daily_loss_stop_pct: 10     # stop trading for the day if hit
+  max_weekly_loss_stop_pct: 20    # stop trading for the week if hit
+  stop_loss_pct_range: [7, 10]    # tight, logical stops below entry
+  take_profit_pct_range: [15, 25] # take profit into strength when stretched
   close_or_reduce_if_price_closes_below_200dma: true
+  no_aggressive_averaging_down: true
+  no_chasing_extended_moves: true
+  skip_trade_if_market_conditions_unclear: true
 
 instruments:
   equities: allowed
   options:
     live_orders: disallowed
-    # Robinhood Agentic beta is stocks-only. Never place a live option order.
+    # Stocks-only execution strategy. Never place a live option order unless
+    # Twan explicitly and clearly authorizes a workflow that supports it.
     simulate_via_stock_sizing: true
-    # Mimic option-like risk/reward with smaller, tightly-stopped stock
-    # positions in high-beta names instead.
+    # If Twan floats an option-style idea, translate it into stock logic
+    # with a defined entry, stop, and target — don't assume options are allowed.
   futures: disallowed
   margin: disallowed
   short_selling: disallowed
@@ -54,6 +56,10 @@ universe:
     min_avg_daily_volume_shares: 1000000
   primary_themes: [AI_semiconductors]
   core_tickers: [NVDA, AAPL, MU, NBIS, WDC, STX, GOOGL, META, NFLX, PLTR, TSLA]
+  flex_instruments: [SPY]
+  # SPY (and other large-cap tech outside the core list) may be traded when
+  # the setup is strong, subject to the same hard_filters and the daily_levels
+  # workflow below for SPY specifically.
   allow_new_tickers_in_theme: true
   # A new ticker outside core_tickers may be proposed only if it passes
   # hard_filters, gets a one-sentence justification, and (first trade only)
@@ -74,28 +80,74 @@ style:
 signals:
   trend_filter:
     require_price_above_50dma: true
-    require_50dma_above_200dma: true
-    no_new_longs_if_price_below_200dma: true
+    prefer_50dma_above_200dma: true   # even stronger setup, not a hard gate on its own
+    no_new_longs_if_trend_unhealthy: true
   dip_entry:
+    prefer_red_days_over_chasing_green: true
     pullback_from_10d_high_pct_range: [3, 6]   # adapt within range per volatility
-    require_red_day_vs_prior_close: true
     require_price_above_50dma: true
     preferred_names: [NVDA, TSLA, AAPL, GOOGL, META, PLTR]
     avoid_catastrophic_news_dips: true
+  exit_rules:
+    take_profit_into_strength_when_stretched: true
+    use_tight_logical_stops: true
+    exit_without_hesitation_if_momentum_or_setup_breaks: true
+    reduce_or_close_if_no_longer_aligned_with_trend: true
+
+daily_levels_workflow:
+  # Each trading day, Twan may paste a Discord post from Chris with SPY and
+  # TSLA support/resistance levels.
+  source: "Discord post from Chris (SPY + TSLA levels)"
+  ask_if_not_provided: true
+  # Before acting each day, ask Twan for the latest levels if he hasn't
+  # already pasted them.
+  role: confirmation_layer_not_blind_signal
+  spy:
+    prefer_longs: "near posted support, or on a clean break above posted resistance"
+    avoid_middle_of_range: true
+  tsla:
+    prefer_longs: "near the posted pullback/retest zone, only if trend and liquidity still support the trade"
+    avoid_middle_of_range: true
+  conflict_resolution: "if posted levels conflict with trend, volume, or risk rules, Twan's rules win"
+  skip_if_price_too_far_from_posted_level: true
 
 execution:
   order_type_preference: limit_orders_primary
   slippage_tolerance_pct: 0.3      # tight default for liquid large caps (range 0.2-0.5%)
+  choose_best_limit_using_market_context: true
+  avoid_bad_fills: true
   one_new_entry_per_ticker_per_day: true
   cancel_and_reevaluate_if_unfilled_beyond_slippage: true
   pre_trade_checks: [current_positions, cash, open_orders, account_value, risk_limits]
+
+decision_priority:
+  # Order used when reasoning about any trade decision.
+  - risk_rules
+  - liquidity_and_price_filters
+  - trend
+  - daily_discord_levels
+  - entry_quality
+  - position_sizing
+  - execution_quality
 
 reporting:
   rationale_detail_level: one_sentence
   persistent_trade_log: true
   trade_log_path: trading/trade_log.md
-  trade_log_fields: [timestamp, ticker, action, quantity, price, pnl_impact, rationale, rules_triggered]
+  trade_log_fields: [datetime, ticker, action, quantity, price, rationale, signal_type, risk_notes, result_after_exit]
   performance_summary_frequency: daily
+  daily_summary_fields: [current_positions, cash_and_deployed_capital, open_orders, unrealized_and_realized_pnl, what_changed_today, risk_limits_hit, tomorrows_watchlist]
+
+trade_proposal_fields:
+  # What every confirm-mode trade idea must include, in this order.
+  - ticker
+  - direction
+  - entry_zone
+  - stop_level
+  - target_or_exit_logic
+  - position_size
+  - one_sentence_rationale
+  - signal_source   # trend | pullback | daily_discord_levels
 
 guardrails:
   daily_loss_stop:
@@ -109,12 +161,19 @@ guardrails:
 
 autonomy:
   mode: confirm
-  # confirm: every proposed trade gets a one-sentence rationale and waits for
-  #          plain-text approval ("approve"/"yes") before any order is placed.
+  # confirm: every proposed trade uses trade_proposal_fields above and waits
+  #          for plain-text approval before any order is placed.
   # auto:    entered only after Twan explicitly says "switch to auto mode".
   #          All risk/guardrail and logging rules still apply in auto mode.
   confirm_phrases: ["approve", "yes"]
   switch_to_auto_phrase: "switch to auto mode"
+
+behavior:
+  - be disciplined, concise, consistent
+  - do not overtrade
+  - do not invent reasons
+  - if a setup is weak, say no trade
+  - if the market is messy, wait
 
 scope:
   account_restriction: "Only the dedicated Robinhood Agentic account. Never touch other Robinhood accounts or balances."
