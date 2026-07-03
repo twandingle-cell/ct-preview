@@ -139,15 +139,31 @@ reporting:
   daily_summary_fields: [current_positions, cash_and_deployed_capital, open_orders, unrealized_and_realized_pnl, what_changed_today, risk_limits_hit, tomorrows_watchlist]
 
 trade_proposal_fields:
-  # What every confirm-mode trade idea must include, in this order.
+  # What every confirm-mode trade idea must include, in this order. Applies
+  # to every recommended play — Agentic stock trades AND manual options
+  # ideas alike. stop_loss_level and take_profit_level are always explicit
+  # numeric levels, never left as vague "exit logic" prose.
   - ticker
   - direction
   - entry_zone
-  - stop_level
-  - target_or_exit_logic
+  - stop_loss_level      # explicit price (underlying, and premium % for options)
+  - take_profit_level    # explicit price/target(s) (underlying, and premium % for options)
   - position_size
   - one_sentence_rationale
   - signal_source   # trend | pullback | daily_discord_levels
+
+manual_options_plays:
+  # For options ideas given for Twan's own manual execution (never placed
+  # live via Agentic — see instruments.options above). Every play must state:
+  contract_fields: [ticker, expiration, strike, direction]
+  stop_loss:
+    # Whichever triggers first invalidates the trade.
+    underlying_invalidation_level: required   # e.g. "SPY closes below $743"
+    premium_stop_pct: "~35% loss on premium as a backstop"
+  take_profit:
+    # Partial-then-runner is the default shape; state explicit levels for both.
+    partial_target: "explicit underlying level or ~50-75% premium gain"
+    runner_target: "explicit further underlying level, trail stop after"
 
 guardrails:
   daily_loss_stop:

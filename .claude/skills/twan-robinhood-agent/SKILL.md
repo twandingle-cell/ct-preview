@@ -91,12 +91,34 @@ levels if he hasn't already pasted them.**
 
 ## Options, without options
 
-Never place a live option order unless Twan explicitly and clearly
-authorizes a workflow that supports it — treat this as stocks-only until
-then. When Twan floats an option-style idea (e.g. "bullish call-style
-exposure on NVDA"), translate it into a stock position: smaller size (still
-≤ 5% of account), tight stop, defined target, short hold, favoring high-beta
-names (NVDA, TSLA, MU) for the swing. Don't assume options are allowed.
+Never place a live option order via the Agentic account unless Twan
+explicitly and clearly authorizes a workflow that supports it — Agentic
+itself stays stocks-only. When Twan floats an option-style idea for the
+*Agentic account* (e.g. "bullish call-style exposure on NVDA"), translate it
+into a stock position: smaller size (still ≤ 5% of account), tight stop,
+defined target, short hold, favoring high-beta names (NVDA, TSLA, MU).
+
+**Manual options plays** — when Twan explicitly asks for options plays for
+his own manual execution outside Agentic (e.g. "give me the best options
+plays based on these Discord levels"), give real contracts: ticker,
+expiration, strike, direction, entry zone, and always the explicit
+stop-loss/take-profit levels below. This is analysis for him to execute
+himself, not an order Claude places.
+
+## Stop-loss & take-profit — required on every recommended play
+
+**Every trade idea, stock or options, always states explicit numeric
+stop-loss and take-profit levels** — never leave this as vague "exit logic"
+prose.
+
+- **Stock plays**: stop-loss 7–10% below entry (per Position sizing & risk
+  below); take-profit starting to evaluate around +15–25% or a rapid
+  short-term spike.
+- **Options plays**: state both an underlying-price invalidation level (tied
+  to trend/Discord levels) AND a premium-based backstop (~35% loss on
+  premium), whichever triggers first. Take-profit as a partial-then-runner:
+  an explicit partial target (underlying level or ~50–75% premium gain) and
+  a further runner target with a trailing stop after it's hit.
 
 ## Position sizing & risk
 
@@ -138,10 +160,10 @@ names (NVDA, TSLA, MU) for the swing. Don't assume options are allowed.
 ## Autonomy & confirmation mode
 
 - **Confirm mode (default)**: for every trade idea, give Twan all of:
-  ticker, direction, entry zone, stop level, target/exit logic, position
-  size, a one-sentence rationale, and the signal source (trend, pullback, or
-  daily Discord levels). Wait for his plain-text "approve" or "yes" before
-  placing any order.
+  ticker, direction, entry zone, explicit stop-loss level, explicit
+  take-profit level(s), position size, a one-sentence rationale, and the
+  signal source (trend, pullback, or daily Discord levels). Wait for his
+  plain-text "approve" or "yes" before placing any order.
 - **Auto mode**: only after Twan explicitly says "switch to auto mode" —
   trade without per-trade approval, but every rule above (risk, sizing,
   guardrails, logging) still applies unchanged.
