@@ -1,0 +1,265 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Usage Dashboard (Preview)</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: #f1f5f9;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 1.5rem;
+      }
+      .card {
+        border: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 1px 2px rgba(16,24,40,0.06);
+        width: 100%;
+        max-width: 46rem;
+        padding: 1.25rem;
+      }
+      .header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .tabs { display: flex; align-items: center; gap: 0.25rem; }
+      .tab-btn {
+        padding: 0.4rem 0.9rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #64748b;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+      }
+      .tab-btn.active { background: #0f172a; color: white; }
+      .seg-wrap {
+        background: #e2e8f0;
+        border-radius: 0.6rem;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .seg-btn {
+        padding: 0.3rem 0.7rem;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #64748b;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+      }
+      .seg-btn.active { background: white; color: #0f172a; box-shadow: 0 1px 2px rgba(16,24,40,0.08); }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+      @media (min-width: 640px) {
+        .stat-grid { grid-template-columns: repeat(4, 1fr); }
+      }
+      .stat-grid + .stat-grid { margin-top: 0.75rem; }
+      .stat {
+        border: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+      }
+      .stat-label { font-size: 0.8rem; color: #64748b; }
+      .stat-value { font-size: 1.35rem; font-weight: 600; color: #0f172a; margin-top: 2px; }
+
+      .heatmap {
+        margin-top: 1rem;
+        display: grid;
+        grid-template-columns: repeat(16, minmax(0, 1fr));
+        gap: 4px;
+      }
+      .heat-cell { width: 100%; padding-top: 100%; position: relative; border-radius: 4px; }
+      .heat-cell > span { position: absolute; inset: 0; border-radius: 4px; }
+
+      .fun-fact { margin-top: 0.75rem; font-size: 0.875rem; color: #64748b; }
+
+      .hidden { display: none; }
+
+      .model-row { display: flex; align-items: center; gap: 0.75rem; }
+      .model-row + .model-row { margin-top: 0.75rem; }
+      .model-name { width: 7rem; font-size: 0.875rem; font-weight: 500; color: #334155; }
+      .model-bar-track { flex: 1; height: 8px; border-radius: 9999px; background: #e2e8f0; overflow: hidden; }
+      .model-bar-fill { height: 100%; border-radius: 9999px; background: #2563eb; }
+      .model-pct { width: 2.5rem; text-align: right; font-size: 0.875rem; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="header-row">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="overview" id="tab-overview">Overview</button>
+          <button class="tab-btn" data-tab="models" id="tab-models">Models</button>
+        </div>
+        <div class="seg-wrap">
+          <button class="seg-btn active" data-range="all" id="range-all">All</button>
+          <button class="seg-btn" data-range="30d" id="range-30d">30d</button>
+          <button class="seg-btn" data-range="7d" id="range-7d">7d</button>
+        </div>
+      </div>
+
+      <div id="panel-overview">
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-label">Sessions</div><div class="stat-value" id="stat-sessions">115</div></div>
+          <div class="stat"><div class="stat-label">Messages</div><div class="stat-value" id="stat-messages">29,117</div></div>
+          <div class="stat"><div class="stat-label">Total tokens</div><div class="stat-value" id="stat-tokens">3.0M</div></div>
+          <div class="stat"><div class="stat-label">Active days</div><div class="stat-value" id="stat-active-days">10</div></div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-label">Current streak</div><div class="stat-value" id="stat-current-streak">2d</div></div>
+          <div class="stat"><div class="stat-label">Longest streak</div><div class="stat-value" id="stat-longest-streak">2d</div></div>
+          <div class="stat"><div class="stat-label">Peak hour</div><div class="stat-value" id="stat-peak-hour">6 AM</div></div>
+          <div class="stat"><div class="stat-label">Favorite model</div><div class="stat-value" id="stat-fav-model">Opus 4.5</div></div>
+        </div>
+
+        <div class="heatmap" id="heatmap-grid"></div>
+
+        <div class="fun-fact" id="fun-fact">You've used ~24&times; more tokens than The Hobbit.</div>
+      </div>
+
+      <div id="panel-models" class="hidden">
+        <div id="models-list"></div>
+      </div>
+    </div>
+
+    <script>
+      const RANGE_DATA = {
+        all: {
+          sessions: "115", messages: "29,117", tokens: "3.0M", activeDays: "10",
+          currentStreak: "2d", longestStreak: "2d", peakHour: "6 AM", favModel: "Opus 4.5",
+          funFact: "You've used ~24× more tokens than The Hobbit.",
+          models: [
+            { name: "Opus 4.5", pct: 58 },
+            { name: "Sonnet 5", pct: 31 },
+            { name: "Haiku 4.5", pct: 11 },
+          ],
+          heat: [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,
+                 3,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,
+                 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,2,
+                 0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        },
+        "30d": {
+          sessions: "62", messages: "15,842", tokens: "1.6M", activeDays: "8",
+          currentStreak: "2d", longestStreak: "2d", peakHour: "6 AM", favModel: "Opus 4.5",
+          funFact: "You've used ~13× more tokens than The Hobbit.",
+          models: [
+            { name: "Opus 4.5", pct: 55 },
+            { name: "Sonnet 5", pct: 34 },
+            { name: "Haiku 4.5", pct: 11 },
+          ],
+          heat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,
+                 3,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,
+                 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,2,
+                 0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        },
+        "7d": {
+          sessions: "14", messages: "3,204", tokens: "0.4M", activeDays: "4",
+          currentStreak: "2d", longestStreak: "2d", peakHour: "6 AM", favModel: "Sonnet 5",
+          funFact: "You've used ~3× more tokens than The Hobbit.",
+          models: [
+            { name: "Sonnet 5", pct: 61 },
+            { name: "Opus 4.5", pct: 30 },
+            { name: "Haiku 4.5", pct: 9 },
+          ],
+          heat: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,
+                 3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        },
+      };
+
+      const HEAT_COLORS = ["#e2e8f0", "#93c5fd", "#3b82f6", "#1d4ed8"];
+
+      function renderHeatmap(values) {
+        const grid = document.getElementById("heatmap-grid");
+        grid.innerHTML = "";
+        values.forEach((level) => {
+          const cell = document.createElement("div");
+          cell.className = "heat-cell";
+          const inner = document.createElement("span");
+          inner.style.background = HEAT_COLORS[level] || HEAT_COLORS[0];
+          cell.appendChild(inner);
+          grid.appendChild(cell);
+        });
+      }
+
+      function renderModels(models) {
+        const list = document.getElementById("models-list");
+        list.innerHTML = "";
+        models.forEach((m) => {
+          const row = document.createElement("div");
+          row.className = "model-row";
+          row.innerHTML = `
+            <div class="model-name">${m.name}</div>
+            <div class="model-bar-track"><div class="model-bar-fill" style="width:${m.pct}%"></div></div>
+            <div class="model-pct">${m.pct}%</div>
+          `;
+          list.appendChild(row);
+        });
+      }
+
+      function applyRange(key) {
+        const d = RANGE_DATA[key];
+        document.getElementById("stat-sessions").textContent = d.sessions;
+        document.getElementById("stat-messages").textContent = d.messages;
+        document.getElementById("stat-tokens").textContent = d.tokens;
+        document.getElementById("stat-active-days").textContent = d.activeDays;
+        document.getElementById("stat-current-streak").textContent = d.currentStreak;
+        document.getElementById("stat-longest-streak").textContent = d.longestStreak;
+        document.getElementById("stat-peak-hour").textContent = d.peakHour;
+        document.getElementById("stat-fav-model").textContent = d.favModel;
+        document.getElementById("fun-fact").innerHTML = d.funFact;
+        renderHeatmap(d.heat);
+        renderModels(d.models);
+
+        ["all", "30d", "7d"].forEach((k) => {
+          document.getElementById(`range-${k}`).classList.toggle("active", k === key);
+        });
+      }
+
+      ["all", "30d", "7d"].forEach((k) => {
+        document.getElementById(`range-${k}`).addEventListener("click", () => applyRange(k));
+      });
+
+      ["overview", "models"].forEach((t) => {
+        document.getElementById(`tab-${t}`).addEventListener("click", () => {
+          ["overview", "models"].forEach((tt) => {
+            document.getElementById(`tab-${tt}`).classList.toggle("active", tt === t);
+            document.getElementById(`panel-${tt}`).classList.toggle("hidden", tt !== t);
+          });
+        });
+      });
+
+      applyRange("all");
+    </script>
+  </body>
+</html>
