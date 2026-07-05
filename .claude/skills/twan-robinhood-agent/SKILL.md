@@ -49,6 +49,12 @@ item always overrides a later one:
   2. Get a one-sentence justification (e.g. "AVGO is a large-cap AI networking/ASIC
      supplier with strong liquidity, fits the AI/semis theme").
   3. Get Twan's explicit text approval the first time, before it's ever traded.
+- **Crypto-proxy watch: MSTR** — approved by Twan on 2026-07-05 despite
+  sitting outside the AI/semis/SPY/mega-cap-tech theme. It's a leveraged
+  bitcoin-treasury proxy equity; Twan's thesis is that it (with crypto) will
+  bounce off the current bear-market lows eventually. Passes hard filters
+  (price, liquidity), so it's tradeable — but see the reversal trigger below
+  before ever treating it as a live setup, not the standard dip_entry rule.
 
 ## Signal framework (short-term swing)
 
@@ -72,6 +78,25 @@ If price closes below the 200-day MA, close or sharply reduce next session.
 **Intraday / same-day trades** — same-day buy+sell allowed only in core-list,
 SPY, or mega-cap-tech names, during regular hours, unless Twan explicitly
 approves an after-hours scalp.
+
+## MSTR — crypto-proxy reversal trigger (not the standard dip rule)
+
+MSTR sits in a confirmed downtrend (price below both the 50-day and
+200-day MA) as of the 2026-07-05 approval — that fails the trend filter
+outright. Twan being bullish on an eventual crypto/MSTR bounce is not
+itself a signal to buy today; don't bottom-fish a falling knife. Instead,
+wait for actual evidence the downtrend is repairing before treating it as a
+setup:
+
+- Price reclaims the 50-day MA **and holds above it for a subsequent
+  session** — a single up-day spike back above it doesn't count.
+- Prefer a higher low vs. the prior swing low as confirmation.
+- Still no full-size position while price remains below the 200-day MA —
+  a clean 50DMA reclaim + higher low can justify a smaller starter size
+  ahead of that, but the 200DMA reclaim is the stronger, later confirmation.
+
+This is a distinct trigger from the standard 3–6% uptrend dip_entry rule
+above — MSTR isn't in an uptrend yet, so that rule doesn't apply to it.
 
 ## SPY & TSLA daily Discord levels
 

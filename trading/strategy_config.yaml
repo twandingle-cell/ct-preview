@@ -64,6 +64,15 @@ universe:
   # A new ticker outside core_tickers may be proposed only if it passes
   # hard_filters, gets a one-sentence justification, and (first trade only)
   # gets Twan's explicit text approval.
+  crypto_proxy_watch: [MSTR]
+  # Added 2026-07-05 per Twan's explicit approval: not a core AI/semis or
+  # SPY/mega-cap-tech name -- MSTR is a leveraged bitcoin-treasury proxy
+  # equity. Twan's thesis: currently in a crypto bear market, but MSTR
+  # (with crypto) will bounce eventually. Passes hard_filters (price
+  # ~$100.77, avg volume ~29M shares/day) so it's tradeable, but the
+  # standard trend_filter/dip_entry rules below still gate every actual
+  # entry -- see signals.crypto_proxy_reversal for the distinct trigger
+  # this ticker needs before it counts as a real setup, not a falling knife.
 
 style:
   core_style: short_term_swing
@@ -93,6 +102,23 @@ signals:
     use_tight_logical_stops: true
     exit_without_hesitation_if_momentum_or_setup_breaks: true
     reduce_or_close_if_no_longer_aligned_with_trend: true
+  crypto_proxy_reversal:
+    # For universe.crypto_proxy_watch names (MSTR) only. These sit in a
+    # confirmed downtrend today (price below both 50DMA and 200DMA), which
+    # fails trend_filter outright -- do NOT bottom-fish a falling knife just
+    # because Twan is bullish on the eventual bounce. Instead of buying the
+    # dip inside an uptrend, wait for evidence the downtrend is actually
+    # repairing:
+    require_price_reclaims_and_holds_above_50dma: true
+    # A single up-day spike back above the 50DMA doesn't count -- look for
+    # it to hold above 50DMA for a subsequent session before treating this
+    # as a real signal, not noise inside a still-falling name.
+    prefer_higher_low_vs_prior_swing_low: true
+    still_no_new_longs_if_price_below_200dma_at_entry: true
+    # 200DMA reclaim is the stronger, later confirmation -- can size in
+    # smaller ahead of that on a clean 50DMA reclaim + higher low, but never
+    # skip straight to a full-size position while still under the 200DMA.
+    note: "This is a distinct trend-repair trigger, not the standard 3-6% uptrend dip_entry rule -- MSTR isn't in an uptrend yet."
 
 daily_levels_workflow:
   # Each trading day, Twan may paste a Discord post from Chris with SPY and
