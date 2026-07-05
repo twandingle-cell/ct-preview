@@ -1,0 +1,417 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trading Journal — Robinhood Agentic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --surface-1:      #fcfcfb;
+        --page:           #f9f9f7;
+        --text-primary:   #0b0b0b;
+        --text-secondary: #52514e;
+        --text-muted:     #898781;
+        --grid:           #e1e0d9;
+        --axis:           #c3c2b7;
+        --border:         rgba(11,11,11,0.10);
+        --series-1:       #2a78d6; /* blue — neutral / cumulative */
+        --good:           #0ca30c;
+        --critical:       #d03b3b;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --surface-1:      #1a1a19;
+          --page:           #0d0d0d;
+          --text-primary:   #ffffff;
+          --text-secondary: #c3c2b7;
+          --text-muted:     #898781;
+          --grid:           #2c2c2a;
+          --axis:           #383835;
+          --border:         rgba(255,255,255,0.10);
+          --series-1:       #3987e5;
+          --good:           #0ca30c;
+          --critical:       #e66767;
+        }
+      }
+      body { background: var(--page); color: var(--text-primary); }
+      .card { border: 1px solid var(--border); background: var(--surface-1); border-radius: 1rem; box-shadow: 0 1px 2px rgba(16,24,40,0.06); }
+      .card-header { border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; }
+      .card-title { font-weight: 600; font-size: 1rem; }
+      .card-content { padding: 0.75rem 1rem; }
+      .muted { color: var(--text-muted); }
+      .secondary { color: var(--text-secondary); }
+      .tabular { font-variant-numeric: tabular-nums; }
+      .pill { display:inline-flex; align-items:center; gap:0.3rem; border-radius:9999px; padding: 2px 9px; font-size: 12px; font-weight: 600; }
+      table.jr th { text-align: left; font-weight: 500; color: var(--text-muted); padding: 6px 10px; border-bottom: 1px solid var(--grid); position: sticky; top: 0; background: var(--surface-1); }
+      table.jr td { padding: 6px 10px; border-bottom: 1px solid var(--grid); }
+      table.jr tr:last-child td { border-bottom: none; }
+      input.search { border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); border-radius: 0.5rem; padding: 0.4rem 0.7rem; font-size: 0.875rem; }
+    </style>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useMemo, useState } = React;
+      const { ComposedChart, Area, Line, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } = Recharts;
+
+      // Snapshot pulled live from the Robinhood Agentic Trading MCP (account ••••0737), all-time span.
+      const RAW_TRADES = [
+        {"timestamp":"2026-06-29T14:15:12Z","symbol":"MRVL","quantity":133,"price":251.23,"gain":-7210.15},
+        {"timestamp":"2026-06-25T22:00:15Z","symbol":"IREN","quantity":10,"price":47.956,"gain":-49.54},
+        {"timestamp":"2026-06-25T21:59:54Z","symbol":"SMCI","quantity":10,"price":31.63,"gain":24.3},
+        {"timestamp":"2026-06-25T21:59:36Z","symbol":"ORCL","quantity":2,"price":151,"gain":-69.65},
+        {"timestamp":"2026-06-25T21:57:30Z","symbol":"CBRS","quantity":10,"price":169.324,"gain":-156.76},
+        {"timestamp":"2026-06-25T21:56:37Z","symbol":"AMD","quantity":19,"price":529.05,"gain":129.2},
+        {"timestamp":"2026-06-24T13:58:28Z","symbol":"SPCX","quantity":72,"price":153.12,"gain":-1773.29},
+        {"timestamp":"2026-06-23T19:15:37Z","symbol":"MU","quantity":10,"price":1051.835,"gain":266.4},
+        {"timestamp":"2026-06-18T20:00:00Z","symbol":"NFLX","quantity":10,"price":0,"gain":-463},
+        {"timestamp":"2026-06-18T19:54:37Z","symbol":"BOT","quantity":100,"price":32,"gain":-348},
+        {"timestamp":"2026-06-16T14:12:59Z","symbol":"UFO","quantity":100,"price":51.13,"gain":-87},
+        {"timestamp":"2026-06-16T14:12:13Z","symbol":"RDW","quantity":200,"price":13.4201,"gain":-1050.44},
+        {"timestamp":"2026-06-16T13:11:06Z","symbol":"HYPE","quantity":364.3775,"price":75.009,"gain":5416.21},
+        {"timestamp":"2026-06-15T14:51:23Z","symbol":"SPCE","quantity":5200,"price":3.7458,"gain":-5429.86},
+        {"timestamp":"2026-06-12T20:00:00Z","symbol":"SPCE","quantity":10,"price":0,"gain":-360},
+        {"timestamp":"2026-06-12T13:36:50Z","symbol":"ASTS","quantity":1,"price":430,"gain":-85},
+        {"timestamp":"2026-06-09T18:36:34Z","symbol":"AMD","quantity":1,"price":1185,"gain":-30},
+        {"timestamp":"2026-06-05T16:00:01Z","symbol":"ASTX","quantity":117,"price":37.150085,"gain":-1685.99},
+        {"timestamp":"2026-06-05T15:54:48Z","symbol":"NOW","quantity":205,"price":114.205024,"gain":-408.4},
+        {"timestamp":"2026-06-05T15:53:23Z","symbol":"HYPE","quantity":54.5621,"price":57.723,"gain":-49.59},
+        {"timestamp":"2026-06-05T15:53:05Z","symbol":"PENGU","quantity":595560,"price":0.00624,"gain":-906.58},
+        {"timestamp":"2026-06-05T15:52:20Z","symbol":"DUOL","quantity":1,"price":3660,"gain":10},
+        {"timestamp":"2026-06-05T15:52:03Z","symbol":"META","quantity":2,"price":4630,"gain":344},
+        {"timestamp":"2026-06-05T15:51:43Z","symbol":"CBRS","quantity":2,"price":3690,"gain":-2670},
+        {"timestamp":"2026-06-04T14:26:26Z","symbol":"DRAM","quantity":130,"price":64.85,"gain":167.7},
+        {"timestamp":"2026-06-02T17:03:54Z","symbol":"IBM","quantity":1,"price":7660,"gain":4267},
+        {"timestamp":"2026-06-02T17:03:25Z","symbol":"NBIS","quantity":1,"price":9967,"gain":3382},
+        {"timestamp":"2026-06-01T15:34:15Z","symbol":"TE","quantity":992.038656,"price":10.444996,"gain":-448.16},
+        {"timestamp":"2026-06-01T15:32:56Z","symbol":"COP","quantity":1.136209,"price":116.703881,"gain":107.91},
+        {"timestamp":"2026-06-01T15:32:48Z","symbol":"HAL","quantity":2.204672,"price":39.593191,"gain":71.27},
+        {"timestamp":"2026-06-01T15:32:40Z","symbol":"TSLA","quantity":0.0294,"price":423.469388,"gain":10.86},
+        {"timestamp":"2026-05-29T23:01:39Z","symbol":"CBRS","quantity":2,"price":236.81,"gain":-111.91},
+        {"timestamp":"2026-05-29T14:30:51Z","symbol":"CLF","quantity":1,"price":13.36,"gain":10.2},
+        {"timestamp":"2026-05-29T14:30:32Z","symbol":"AM","quantity":1.499695,"price":20.970931,"gain":22.48},
+        {"timestamp":"2026-05-29T14:29:16Z","symbol":"SCHD","quantity":0.210592,"price":32.622322,"gain":0.84},
+        {"timestamp":"2026-05-29T14:28:25Z","symbol":"FCX","quantity":1,"price":64.66,"gain":-2.67},
+        {"timestamp":"2026-05-29T14:27:06Z","symbol":"DEA","quantity":0.60148,"price":23.957571,"gain":-10.34},
+        {"timestamp":"2026-05-29T14:26:56Z","symbol":"ASST","quantity":2.769983,"price":16.913461,"gain":-30.15},
+        {"timestamp":"2026-05-29T14:26:28Z","symbol":"ACB","quantity":0.1,"price":3.6,"gain":-45.54},
+        {"timestamp":"2026-05-29T14:26:18Z","symbol":"SIRI","quantity":0.119626,"price":29.257854,"gain":-2.19},
+        {"timestamp":"2026-05-29T14:24:58Z","symbol":"IGC","quantity":1,"price":0.29,"gain":-3.11},
+        {"timestamp":"2026-05-27T16:04:25Z","symbol":"NVTS","quantity":1,"price":1540,"gain":725},
+        {"timestamp":"2026-05-27T13:52:41Z","symbol":"NVDA","quantity":1,"price":2399,"gain":-265},
+        {"timestamp":"2026-05-27T13:52:12Z","symbol":"DRAM","quantity":1,"price":2260,"gain":-78},
+        {"timestamp":"2026-05-27T13:35:53Z","symbol":"MU","quantity":1,"price":1615,"gain":265},
+        {"timestamp":"2026-05-26T13:31:15Z","symbol":"NOW","quantity":1,"price":2040,"gain":-140},
+        {"timestamp":"2026-05-22T20:00:00Z","symbol":"QS","quantity":10,"price":0,"gain":-260},
+        {"timestamp":"2026-05-22T18:23:30Z","symbol":"QUBT","quantity":10,"price":50,"gain":-250},
+        {"timestamp":"2026-05-22T16:33:31Z","symbol":"AAPL","quantity":3,"price":2085,"gain":1254},
+        {"timestamp":"2026-05-22T14:11:15Z","symbol":"RKLB","quantity":1,"price":3985,"gain":-175},
+        {"timestamp":"2026-05-21T18:47:45Z","symbol":"QQQ","quantity":10,"price":4,"gain":-30},
+        {"timestamp":"2026-05-19T17:18:23Z","symbol":"NOW","quantity":100,"price":100.915,"gain":-266.44},
+        {"timestamp":"2026-05-19T17:18:01Z","symbol":"NOW","quantity":1,"price":2150,"gain":110},
+        {"timestamp":"2026-05-19T16:18:56Z","symbol":"META","quantity":1,"price":8034,"gain":-1408},
+        {"timestamp":"2026-05-19T13:30:00Z","symbol":"IRE","quantity":33.415647,"price":22.420036,"gain":-250.82},
+        {"timestamp":"2026-05-18T14:35:47Z","symbol":"DRAM","quantity":5,"price":1230,"gain":-2250},
+        {"timestamp":"2026-05-18T14:33:32Z","symbol":"DRAM","quantity":625,"price":50.061296,"gain":4289.05},
+        {"timestamp":"2026-05-13T22:54:14Z","symbol":"META","quantity":50,"price":615.31,"gain":-27.75},
+        {"timestamp":"2026-05-13T16:03:15Z","symbol":"INTC","quantity":1,"price":2948,"gain":683},
+        {"timestamp":"2026-05-13T16:00:47Z","symbol":"SNDK","quantity":18,"price":1422.205,"gain":4140.54},
+        {"timestamp":"2026-05-13T15:59:53Z","symbol":"MU","quantity":1,"price":22530,"gain":590},
+        {"timestamp":"2026-05-12T16:50:33Z","symbol":"AMD","quantity":1,"price":4951,"gain":-249},
+        {"timestamp":"2026-05-11T19:46:25Z","symbol":"MU","quantity":1,"price":21693,"gain":11148},
+        {"timestamp":"2026-05-11T13:55:10Z","symbol":"META","quantity":1,"price":8010,"gain":-817},
+        {"timestamp":"2026-05-07T23:17:17Z","symbol":"SCHD","quantity":9,"price":31.57,"gain":26.16},
+        {"timestamp":"2026-05-05T17:30:08Z","symbol":"META","quantity":40,"price":602.305,"gain":-699.57},
+        {"timestamp":"2026-05-05T16:49:02Z","symbol":"AMD","quantity":30,"price":354.01,"gain":174.3},
+        {"timestamp":"2026-05-05T16:47:41Z","symbol":"SOFI","quantity":100,"price":16.1024,"gain":-338.42},
+        {"timestamp":"2026-04-30T16:19:38Z","symbol":"SNDK","quantity":10,"price":1094.85,"gain":-31.5},
+        {"timestamp":"2026-04-30T07:36:45Z","symbol":"OTHER","quantity":1567,"price":0,"gain":-463.832},
+        {"timestamp":"2026-04-28T13:51:00Z","symbol":"MU","quantity":2,"price":136,"gain":-4},
+        {"timestamp":"2026-04-25T01:55:13Z","symbol":"OTHER","quantity":109,"price":1,"gain":11.99},
+        {"timestamp":"2026-02-05T01:04:53Z","symbol":"HBAR","quantity":64.9,"price":0.0885,"gain":-10.59},
+        {"timestamp":"2026-02-05T01:04:30Z","symbol":"BTC","quantity":0.0790597,"price":72243.76,"gain":-2359.46},
+        {"timestamp":"2025-12-04T03:48:44Z","symbol":"OTHER","quantity":1,"price":0,"gain":-0.75},
+        {"timestamp":"2025-11-07T00:35:17Z","symbol":"PENGU","quantity":531185,"price":0.01438,"gain":-8771.27},
+        {"timestamp":"2025-10-20T03:43:15Z","symbol":"OTHER","quantity":2,"price":0,"gain":-1.06},
+        {"timestamp":"2025-10-10T03:27:57Z","symbol":"OTHER","quantity":1,"price":1,"gain":0.67},
+        {"timestamp":"2025-09-23T03:34:34Z","symbol":"OTHER","quantity":1,"price":0,"gain":-0.69},
+        {"timestamp":"2025-09-19T03:30:18Z","symbol":"OTHER","quantity":1,"price":1,"gain":0.07},
+        {"timestamp":"2025-09-09T03:48:53Z","symbol":"OTHER","quantity":1,"price":0,"gain":-0.79},
+        {"timestamp":"2025-09-06T23:18:41Z","symbol":"USDC","quantity":247.98,"price":1.00,"gain":0.00},
+        {"timestamp":"2025-08-20T14:09:48Z","symbol":"PENGU","quantity":581489,"price":0.0285,"gain":-515.90},
+        {"timestamp":"2025-07-29T01:23:40Z","symbol":"PENGU","quantity":41235,"price":0.04058,"gain":997.88},
+        {"timestamp":"2025-07-04T21:59:23Z","symbol":"AVAX","quantity":0.0467,"price":17.55,"gain":-0.95},
+        {"timestamp":"2025-07-04T21:59:10Z","symbol":"ADA","quantity":110.71,"price":0.5679703,"gain":-17.85},
+        {"timestamp":"2025-07-04T21:58:58Z","symbol":"LTC","quantity":2.6577105,"price":86.02,"gain":129.65},
+        {"timestamp":"2025-07-04T21:58:46Z","symbol":"DOGE","quantity":2405,"price":0.161767,"gain":-60.06},
+        {"timestamp":"2025-01-14T21:00:00Z","symbol":"VBIVQ","quantity":0.033333,"price":0,"gain":-3.78}
+      ];
+
+      const OPEN_EQUITY = [
+        {symbol:"NBEVQ", qty:7, avgCost:3.86},
+        {symbol:"NVTS", qty:355.32887, avgCost:23.12},
+        {symbol:"MU", qty:40, avgCost:1115.28},
+        {symbol:"DRAM", qty:100, avgCost:66.43},
+        {symbol:"RDZN", qty:2000, avgCost:1.68},
+        {symbol:"ABSI", qty:115, avgCost:5.71},
+        {symbol:"NOK", qty:100, avgCost:13.90},
+        {symbol:"QS", qty:200, avgCost:9.02},
+        {symbol:"EOSE", qty:1, avgCost:8.04},
+        {symbol:"AIIO", qty:1, avgCost:4.60},
+        {symbol:"RKLB", qty:110, avgCost:117.36},
+        {symbol:"PATH", qty:100, avgCost:11.18},
+        {symbol:"BE", qty:2, avgCost:264.17},
+        {symbol:"ASTX", qty:37, avgCost:17.82},
+        {symbol:"SFTBY", qty:2, avgCost:27.28},
+        {symbol:"MRVU", qty:1.001627, avgCost:299.00},
+        {symbol:"SPCX", qty:1, avgCost:195.13},
+        {symbol:"APLD", qty:1, avgCost:38.80},
+        {symbol:"ASTS", qty:153, avgCost:94.97},
+      ];
+
+      const OPEN_OPTIONS = [
+        {symbol:"MU", type:"long", qty:1, avgCost:5100, expiration:"2026-07-10"},
+        {symbol:"PLTR", type:"long", qty:1, avgCost:1620, expiration:"2027-01-15"},
+        {symbol:"NFLX", type:"long", qty:1, avgCost:944, expiration:"2027-01-15"},
+        {symbol:"SPCX", type:"long", qty:1, avgCost:2950, expiration:"2026-07-17"},
+        {symbol:"NOW", type:"long", qty:1, avgCost:1912, expiration:"2027-01-15"},
+        {symbol:"TSLA", type:"long", qty:1, avgCost:3100, expiration:"2026-07-17"},
+        {symbol:"NVDA", type:"long", qty:1, avgCost:1280, expiration:"2026-07-17"},
+      ];
+
+      const fmtUsd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+      const fmtDate = (iso) => new Date(iso).toLocaleDateString(undefined, {month:"short", day:"numeric", year:"2-digit"});
+      const fmtQty = (n) => n >= 1000 ? n.toLocaleString(undefined,{maximumFractionDigits:0}) : n.toLocaleString(undefined,{maximumFractionDigits:4});
+
+      function Badge({ gain }) {
+        if (gain > 0) return <span className="pill" style={{color:"var(--good)", background:"rgba(12,163,12,0.12)"}}>▲ WIN</span>;
+        if (gain < 0) return <span className="pill" style={{color:"var(--critical)", background:"rgba(208,59,59,0.12)"}}>▼ LOSS</span>;
+        return <span className="pill secondary" style={{background:"rgba(137,135,129,0.15)"}}>FLAT</span>;
+      }
+
+      function KPI({ label, value, sub, tone }) {
+        const color = tone === "good" ? "var(--good)" : tone === "critical" ? "var(--critical)" : "var(--text-primary)";
+        return (
+          <div className="card">
+            <div className="card-header"><div className="text-sm secondary">{label}</div></div>
+            <div className="card-content">
+              <div className="text-3xl font-semibold tabular" style={{ color }}>{value}</div>
+              {sub && <div className="text-xs muted mt-1">{sub}</div>}
+            </div>
+          </div>
+        );
+      }
+
+      function EquityCurveChart({ points }) {
+        return (
+          <ResponsiveContainer width="100%" height={260}>
+            <ComposedChart data={points} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid stroke="var(--grid)" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="label" stroke="var(--axis)" tick={{ fill: "var(--text-muted)", fontSize: 12 }} tickLine={false} axisLine={{ stroke: "var(--axis)" }} minTickGap={40} />
+              <YAxis stroke="var(--axis)" tick={{ fill: "var(--text-muted)", fontSize: 12 }} tickLine={false} axisLine={false} tickFormatter={(v)=>fmtUsd(v)} width={80} />
+              <ReferenceLine y={0} stroke="var(--axis)" />
+              <Tooltip
+                contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                formatter={(v)=>[fmtUsd(v), "Cumulative P&L"]}
+                labelFormatter={(l)=>l}
+              />
+              <Area type="monotone" dataKey="cumulative" stroke="none" fill="var(--series-1)" fillOpacity={0.12} />
+              <Line type="monotone" dataKey="cumulative" stroke="var(--series-1)" strokeWidth={2} dot={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        );
+      }
+
+      function SymbolPnlChart({ data }) {
+        return (
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 0 }}>
+              <CartesianGrid stroke="var(--grid)" strokeDasharray="3 3" horizontal={false} />
+              <XAxis type="number" stroke="var(--axis)" tick={{ fill: "var(--text-muted)", fontSize: 12 }} tickLine={false} axisLine={{ stroke: "var(--axis)" }} tickFormatter={(v)=>fmtUsd(v)} />
+              <YAxis type="category" dataKey="symbol" stroke="var(--axis)" tick={{ fill: "var(--text-primary)", fontSize: 12 }} tickLine={false} axisLine={false} width={56} />
+              <ReferenceLine x={0} stroke="var(--axis)" />
+              <Tooltip
+                contentStyle={{ background: "var(--surface-1)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                formatter={(v)=>[fmtUsd(v), "Realized P&L"]}
+              />
+              <Bar dataKey="total" radius={[4,4,4,4]}>
+                {data.map((d, i) => <Cell key={i} fill={d.total >= 0 ? "var(--series-1)" : "var(--critical)"} />)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      }
+
+      function App() {
+        const [query, setQuery] = useState("");
+
+        const trades = useMemo(() => {
+          const sorted = [...RAW_TRADES].sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+          return sorted;
+        }, []);
+
+        const stats = useMemo(() => {
+          const decided = RAW_TRADES.filter(t => t.gain !== 0);
+          const wins = decided.filter(t => t.gain > 0);
+          const losses = decided.filter(t => t.gain < 0);
+          const totalPnl = RAW_TRADES.reduce((s,t)=> s + t.gain, 0);
+          const best = RAW_TRADES.reduce((a,b)=> b.gain > a.gain ? b : a, RAW_TRADES[0]);
+          const worst = RAW_TRADES.reduce((a,b)=> b.gain < a.gain ? b : a, RAW_TRADES[0]);
+          return {
+            totalPnl,
+            totalTrades: RAW_TRADES.length,
+            winRate: decided.length ? (wins.length / decided.length) * 100 : 0,
+            wins: wins.length,
+            losses: losses.length,
+            best, worst,
+          };
+        }, []);
+
+        const equityCurve = useMemo(() => {
+          const asc = [...RAW_TRADES].sort((a,b)=> new Date(a.timestamp) - new Date(b.timestamp));
+          let running = 0;
+          return asc.map(t => {
+            running += t.gain;
+            return { label: fmtDate(t.timestamp), cumulative: Number(running.toFixed(2)) };
+          });
+        }, []);
+
+        const bySymbol = useMemo(() => {
+          const map = {};
+          for (const t of RAW_TRADES) {
+            if (t.symbol === "OTHER") continue;
+            map[t.symbol] = (map[t.symbol] || 0) + t.gain;
+          }
+          return Object.entries(map)
+            .map(([symbol, total]) => ({ symbol, total: Number(total.toFixed(2)) }))
+            .sort((a,b)=> Math.abs(b.total) - Math.abs(a.total))
+            .slice(0, 12)
+            .sort((a,b)=> a.total - b.total);
+        }, []);
+
+        const filteredTrades = useMemo(() => {
+          if (!query.trim()) return trades;
+          const q = query.trim().toUpperCase();
+          return trades.filter(t => t.symbol.includes(q));
+        }, [trades, query]);
+
+        return (
+          <div className="min-h-screen">
+            <div className="sticky top-0 z-20 border-b bg-white/80 backdrop-blur" style={{ borderColor: "var(--border)", background: "color-mix(in srgb, var(--surface-1) 85%, transparent)" }}>
+              <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-1 rounded" style={{ background: "var(--series-1)" }}></div>
+                  <div className="text-lg font-semibold tracking-tight">Trading Journal</div>
+                  <span className="ml-2 inline-flex items-center rounded-full px-2 py-1 text-xs secondary" style={{ background: "var(--grid)" }}>Robinhood Agentic · ••••0737</span>
+                </div>
+                <div className="text-xs muted">Snapshot · all-time · not investment advice</div>
+              </div>
+            </div>
+
+            <div className="mx-auto grid max-w-7xl gap-4 px-4 py-4 md:grid-cols-4">
+              <KPI label="Total realized P&L" value={fmtUsd(stats.totalPnl)} sub={`${stats.totalTrades} closed trades`} tone={stats.totalPnl >= 0 ? "good" : "critical"} />
+              <KPI label="Win rate" value={`${stats.winRate.toFixed(0)}%`} sub={`${stats.wins}W / ${stats.losses}L`} />
+              <KPI label="Best trade" value={fmtUsd(stats.best.gain)} sub={`${stats.best.symbol} · ${fmtDate(stats.best.timestamp)}`} tone="good" />
+              <KPI label="Worst trade" value={fmtUsd(stats.worst.gain)} sub={`${stats.worst.symbol} · ${fmtDate(stats.worst.timestamp)}`} tone="critical" />
+
+              <div className="md:col-span-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div className="card lg:col-span-2">
+                  <div className="card-header"><div className="card-title">Cumulative realized P&L</div></div>
+                  <div className="card-content"><EquityCurveChart points={equityCurve} /></div>
+                </div>
+                <div className="card">
+                  <div className="card-header"><div className="card-title">P&L by symbol (top 12 by |P&L|)</div></div>
+                  <div className="card-content"><SymbolPnlChart data={bySymbol} /></div>
+                </div>
+              </div>
+
+              <div className="md:col-span-4 card">
+                <div className="card-header flex items-center justify-between">
+                  <div className="card-title">Trade log ({filteredTrades.length})</div>
+                  <input className="search" placeholder="Filter by symbol…" value={query} onChange={e=>setQuery(e.target.value)} />
+                </div>
+                <div className="card-content overflow-x-auto" style={{ maxHeight: 420, overflowY: "auto" }}>
+                  <table className="jr w-full text-sm">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Symbol</th>
+                        <th className="text-right">Qty</th>
+                        <th className="text-right">Price</th>
+                        <th className="text-right">Realized P&L</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTrades.map((t, i) => (
+                        <tr key={i}>
+                          <td className="secondary tabular">{fmtDate(t.timestamp)}</td>
+                          <td className="font-medium">{t.symbol}</td>
+                          <td className="text-right tabular secondary">{fmtQty(t.quantity)}</td>
+                          <td className="text-right tabular secondary">{t.price ? fmtUsd(t.price) : "—"}</td>
+                          <td className="text-right tabular font-medium" style={{ color: t.gain > 0 ? "var(--good)" : t.gain < 0 ? "var(--critical)" : "var(--text-secondary)" }}>{fmtUsd(t.gain)}</td>
+                          <td><Badge gain={t.gain} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="md:col-span-2 card">
+                <div className="card-header"><div className="card-title">Open equity positions ({OPEN_EQUITY.length})</div></div>
+                <div className="card-content overflow-x-auto" style={{ maxHeight: 320, overflowY: "auto" }}>
+                  <table className="jr w-full text-sm">
+                    <thead><tr><th>Symbol</th><th className="text-right">Qty</th><th className="text-right">Avg cost</th></tr></thead>
+                    <tbody>
+                      {OPEN_EQUITY.map((p,i)=>(
+                        <tr key={i}>
+                          <td className="font-medium">{p.symbol}</td>
+                          <td className="text-right tabular secondary">{fmtQty(p.qty)}</td>
+                          <td className="text-right tabular secondary">{fmtUsd(p.avgCost)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="md:col-span-2 card">
+                <div className="card-header"><div className="card-title">Open option positions ({OPEN_OPTIONS.length})</div></div>
+                <div className="card-content overflow-x-auto" style={{ maxHeight: 320, overflowY: "auto" }}>
+                  <table className="jr w-full text-sm">
+                    <thead><tr><th>Symbol</th><th>Side</th><th className="text-right">Contracts</th><th className="text-right">Avg cost</th><th>Expiration</th></tr></thead>
+                    <tbody>
+                      {OPEN_OPTIONS.map((p,i)=>(
+                        <tr key={i}>
+                          <td className="font-medium">{p.symbol}</td>
+                          <td className="secondary capitalize">{p.type}</td>
+                          <td className="text-right tabular secondary">{p.qty}</td>
+                          <td className="text-right tabular secondary">{fmtUsd(p.avgCost)}</td>
+                          <td className="secondary tabular">{p.expiration}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <footer className="border-t" style={{ borderColor: "var(--border)" }}>
+              <div className="mx-auto max-w-7xl px-4 py-4 text-xs muted">
+                Pulled from the Robinhood Agentic Trading MCP (get_pnl_trade_history, get_equity_positions, get_option_positions) on the account ending 0737. Figures are informational only, not a tax document or trading advice.
+              </div>
+            </footer>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+  </body>
+</html>
