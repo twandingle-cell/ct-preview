@@ -120,6 +120,41 @@ signals:
     # skip straight to a full-size position while still under the 200DMA.
     note: "This is a distinct trend-repair trigger, not the standard 3-6% uptrend dip_entry rule -- MSTR isn't in an uptrend yet."
 
+high_conviction_watch:
+  # Explicit, two-tier entry triggers for names Twan wants proactively
+  # watched and alerted on, not just analyzed on request. Levels below are
+  # reference points as of 2026-07-05 -- recompute 50DMA/200DMA/swing-low
+  # live at each check; don't treat these numbers as fixed forever.
+  meta:
+    reference_date: 2026-07-05
+    reference_price: 582.90
+    reference_50dma: 605.23
+    reference_200dma: 646.51
+    tier_1_reduced_size:
+      # Momentum-confirmation entry: respects the UT Bot/EMA-ribbon buy
+      # timing tool without waiting for the full uptrend to re-form.
+      condition: "price closes above the 50DMA AND holds above it into a subsequent session (one spike day doesn't count)"
+      size: "half of max_position_pct (~2.5% of account, not the full 5%)"
+      stop_loss: "close back below the 50DMA reclaim level"
+    tier_2_full_conviction:
+      # The actual core swing setup this strategy is built for.
+      condition: "50DMA reclaims and holds above the 200DMA (healthy uptrend re-established), THEN a normal 3-6% pullback / red day off the new 10-day high per the standard dip_entry rule"
+      size: "up to full max_position_pct (5%)"
+  mstr:
+    reference_date: 2026-07-05
+    reference_price: 100.77
+    reference_50dma: 145.02
+    reference_200dma: 181.26
+    tier_1_reduced_size:
+      # Same shape as crypto_proxy_reversal above, stated explicitly as a watch trigger.
+      condition: "price reclaims and holds above the 50DMA for a subsequent session, with a higher low vs. the recent swing low ($82.31 on 2026-06-26)"
+      size: "small starter size, well under max_position_pct"
+      stop_loss: "close back below the 50DMA reclaim level, or a new swing low"
+    tier_2_full_conviction:
+      condition: "price reclaims and holds above the 200DMA"
+      size: "up to full max_position_pct (5%), still subject to universe.crypto_proxy_watch being a single-name concentration risk"
+  alert_behavior: "checked daily (see routine); alert Twan (chat + email) only when a tier is actually triggered, using trade_proposal_fields format with explicit stop-loss/take-profit. No alert when still no-trade -- avoid noise."
+
 daily_levels_workflow:
   # Each trading day, Twan may paste a Discord post from Chris with SPY and
   # TSLA support/resistance levels.

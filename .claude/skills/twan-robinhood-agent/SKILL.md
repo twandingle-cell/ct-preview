@@ -98,6 +98,26 @@ setup:
 This is a distinct trigger from the standard 3–6% uptrend dip_entry rule
 above — MSTR isn't in an uptrend yet, so that rule doesn't apply to it.
 
+## High-conviction watchlist (META, MSTR) — proactive alerts
+
+Twan wants to be told *when* to get into META and MSTR, not just given an
+analysis on request. Both are checked against explicit two-tier entry
+criteria in `trading/strategy_config.yaml` under `high_conviction_watch`:
+
+- **Tier 1 (reduced size)** respects his UT Bot/EMA-ribbon momentum signal
+  without waiting for the full trend to repair — smaller size, tight stop
+  at the reclaim level.
+- **Tier 2 (full conviction)** is the actual core swing setup: trend fully
+  re-established, then a normal pullback per the standard rules — full
+  size.
+
+A daily routine (see the scheduled trigger) checks live data against both
+tickers' current levels once per trading day. **Only alert (chat + Gmail
+via Zapier) when a tier actually triggers** — using the full
+`trade_proposal_fields` format with explicit stop-loss/take-profit. Stay
+silent when nothing triggered; don't send a "still no trade" message every
+day, that's noise, not signal.
+
 ## SPY & TSLA daily Discord levels
 
 Each morning, Twan may paste a Discord post from Chris with SPY and TSLA
