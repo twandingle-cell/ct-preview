@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Blog — SafetyCallout</title>
+<meta name="description" content="Practical writing on warehouse safety, incident reporting, near-miss culture, and OSHA-ready recordkeeping from the team behind SafetyCallout." />
+<link rel="canonical" href="https://safetycallout.com/blog/" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="The SafetyCallout Blog" />
+<meta property="og:description" content="Practical writing on warehouse safety, incident reporting, and near-miss culture." />
+<meta property="og:url" content="https://safetycallout.com/blog/" />
+<style>
+  :root{
+    --ink:#0f1012; --ink2:#3a3c42; --muted:#6b6e76; --orange:#f57820;
+    --bg:#fbfaf8; --card:#ffffff; --line:#ececee; --line2:#e2e2e5;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.6; }
+  a{ color:inherit; }
+  .container{ width:100%; max-width:760px; margin:0 auto; padding:0 22px; }
+
+  /* header */
+  header.site{ border-bottom:1px solid var(--line); background:var(--bg);
+    position:sticky; top:0; z-index:5; }
+  .nav{ display:flex; align-items:center; justify-content:space-between; height:64px; }
+  .brand{ display:flex; align-items:center; gap:11px; text-decoration:none; }
+  .sc{ width:34px; height:34px; border-radius:50%; background:var(--orange); color:#000;
+    font-weight:800; display:grid; place-items:center; font-size:14px; letter-spacing:-.5px; }
+  .brand b{ font-size:18px; font-weight:800; letter-spacing:-.2px; }
+  .nav-links{ display:flex; align-items:center; gap:20px; font-size:14px; font-weight:600; }
+  .nav-links a{ text-decoration:none; color:var(--ink2); }
+  .nav-links a.demo{ background:var(--orange); color:#000; padding:8px 14px; border-radius:10px; }
+  @media(max-width:520px){ .nav-links a.plain{ display:none; } }
+
+  /* hero */
+  .hero{ padding:52px 0 30px; border-bottom:1px solid var(--line); }
+  .kicker{ font-family:ui-monospace,Menlo,Consolas,monospace; color:var(--orange);
+    font-size:12.5px; letter-spacing:2px; margin-bottom:12px; }
+  .hero h1{ font-size:38px; line-height:1.08; font-weight:800; letter-spacing:-1px; }
+  .hero p{ color:var(--muted); font-size:17px; margin-top:14px; max-width:560px; }
+
+  /* list */
+  .posts{ padding:14px 0 60px; }
+  .post-card{ display:block; text-decoration:none; padding:26px 0; border-bottom:1px solid var(--line); }
+  .post-card:hover h2{ color:var(--orange); }
+  .meta{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px;
+    color:var(--muted); letter-spacing:.5px; margin-bottom:9px;
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .tag{ color:var(--orange); }
+  .post-card h2{ font-size:23px; line-height:1.22; font-weight:800; letter-spacing:-.4px;
+    transition:color .15s ease; }
+  .post-card p{ color:var(--ink2); margin-top:9px; font-size:15.5px; }
+  .readmore{ margin-top:12px; font-size:14px; font-weight:700; color:var(--orange);
+    display:inline-flex; align-items:center; gap:6px; }
+
+  footer.site{ border-top:1px solid var(--line); padding:26px 0 44px; }
+  .foot{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+    color:var(--muted); font-size:13.5px; }
+  .foot a{ color:var(--orange); text-decoration:none;
+    font-family:ui-monospace,Menlo,Consolas,monospace; }
+</style>
+</head>
+<body>
+  <header class="site">
+    <div class="container nav">
+      <a class="brand" href="https://safetycallout.com"><span class="sc">SC</span><b>SafetyCallout</b></a>
+      <nav class="nav-links">
+        <a class="plain" href="https://safetycallout.com">Home</a>
+        <a class="plain" href="/blog/">Blog</a>
+        <a class="demo" href="https://safetycallout.com/contact">Book a demo</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container hero">
+    <div class="kicker">// SAFETY, WRITTEN DOWN</div>
+    <h1>The SafetyCallout Blog</h1>
+    <p>Field notes on incident reporting, near-miss culture, and building a floor where hazards actually get called out — not quietly noted and forgotten.</p>
+  </div>
+
+  <main class="container posts">
+    <a class="post-card" href="/blog/hidden-cost-of-hard-to-report-hazards/">
+      <div class="meta"><span class="tag">SAFETY CULTURE</span><span>Sep 4, 2026</span><span>6 min read</span></div>
+      <h2>The hidden cost of hard-to-report hazards</h2>
+      <p>Most warehouse hazards don't go unreported because people don't notice them. They go unreported because reporting is a hassle — and that friction is quietly costing you your next injury.</p>
+      <span class="readmore">Read the post →</span>
+    </a>
+  </main>
+
+  <footer class="site">
+    <div class="container foot">
+      <span>OSHA-ready reports in 60 seconds.</span>
+      <a href="https://safetycallout.com">safetycallout.com</a>
+    </div>
+  </footer>
+</body>
+</html>
